@@ -1,0 +1,404 @@
+/* Estilos generales */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Product Sans', sans-serif;
+}
+
+/* Estilos para la barra de navegación */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-link {
+    margin: 0 15px;
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+}
+
+.logo img {
+    border-radius: 10%;
+}
+
+
+/* Estilos para el contenedor del logo */
+.logo {
+    margin-left: 1cm;
+}
+
+/* Estilos para el logo */ 
+.logo img {
+    width: 50px;
+    height: auto;
+}
+
+/* Estilos para los elementos de la barra de navegación */
+.nav-links a {
+    color: whitelack;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+/* Cambiar el color del enlace cuando se pasa el mouse por encima */
+.nav-links a:hover {
+    background-color: #103cc0;
+    color: white;
+}
+
+/* Estilos para el texto adicional */
+.intro-text {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Estilos para el texto de la app */
+.app-text {
+    font-size: 30px; /* Tamaño de fuente de 50px */
+    font-weight: bold; /* Texto en negrita */
+    color: #242c5c; /* Color #242c5c */
+    text-align: center;
+}
+
+/* Estilos para la tabla de empleados */
+.table-container {
+    margin: 50px;
+}
+
+#employees-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#employees-table th, #employees-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+#employees-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+#employees-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#employees-table tr:hover {
+    background-color: #ddd;
+}
+
+/* Estilos para el botón Agregar */
+.add-button {
+    position: relative;
+    margin-top: 20px; /* Espacio entre la tabla y el botón */
+    margin-right: 100px;
+    background-color: #242c5c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    float: right; /* Alineación a la derecha */
+}
+
+
+/* Mostrar el botón solo cuando esté visible */
+.add-button[style*="display: block"] {
+    display: block !important;
+}
+
+/* Estilos para el formulario de agregar */
+#add-user-form {
+    display: none;
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 50%; /* Centrar verticalmente */
+    left: 50%; /* Centrar horizontalmente */
+    transform: translate(-50%, -50%);
+    z-index: 1000; /* Asegurarse de que esté en la parte superior */
+}
+
+/* Estilos para el formulario de agregar */
+#add-user-form {
+    display: none;
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+/* Estilos para el título del formulario */
+.form-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Estilos para los campos del formulario */
+#add-user-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Estilos para el botón Guardar del formulario */
+#btnGuardar {
+    background-color: #242c5c;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    float: right;
+}
+
+#btnCerrar {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    float: right;
+}
+
+/* Mostrar el formulario solo cuando esté visible */
+#add-user-form[style*="display: block"] {
+    display: block !important;
+}
+
+
+
+/* Estilos para la tabla de Reportes */
+.reports-list {
+    margin-top: 50px; 
+    display: none;
+}
+
+#reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#reports-table th,
+#reports-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+#reports-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+#reports-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#reports-table tr:hover {
+    background-color: #ddd;
+}
+
+/* Estilos para la barra de búsqueda de empleados */
+#searchEmpleados {
+    margin-top: 10px; /* Cambiar el margen superior a 100px */
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 75%;
+    max-width: 200px;
+    border: 2px solid #ccc;
+    border-radius: 30px;
+    font-size: 15px;
+    display: block;
+    margin-left: 50px;
+    margin-right: auto;
+  }
+  
+  /* Estilos para la barra de búsqueda de reportes */
+  #searchReportes {
+    margin-top: 10px; /* Cambiar el margen superior a 100px */
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 75%;
+    max-width: 200px;
+    border: 2px solid #ccc;
+    border-radius: 30px;
+    font-size: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: 50px;
+  }
+
+
+  /* Estilos para los elementos de entrada de fecha */
+.date-filters {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+  
+  .date-filters label {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .date-filters input[type="date"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  
+
+  /* Estilos para la tabla de permisos */
+#permisos-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  #permisos-table th,
+  #permisos-table td {
+    border: 1px solid #dddddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  #permisos-table th {
+    background-color: #f2f2f2;
+  }
+  
+  #permisos-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  #permisos-table tr:hover {
+    background-color: #e0e0e0;
+  }
+  
+  /* Estilos para los botones de aprobación */
+  .btnAprobarRH {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  
+  .btnAprobarRH:hover {
+    background-color: #45a049;
+  }
+  
+
+
+
+/* Estilos para el menú */
+.menu-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.menu-item {
+    flex: 1;
+    width: 150px; /* Ancho deseado para los cuadros */
+    height: 150px; /* Altura deseada para los cuadros */
+    background-color: #3498db; /* Color de fondo del cuadro */
+    border-radius: 10px; /* Borde redondeado */
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Efecto de transición al pasar el mouse */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px; /* Espacio entre los cuadros */
+    background-size: cover; /* Imagen de fondo se ajusta al cuadro */
+    position: relative; /* Necesario para el efecto de escala */
+}
+
+.menu-content {
+    color: #fff; /* Color del texto */
+    transition: transform 0.3s ease; /* Efecto de transformación al pasar el mouse */
+}
+
+.menu-item i {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* Imágenes de fondo para cada área */
+.menu-item[data-area="general"] {
+    background-image: url("imagenes/general.jpeg");
+}
+
+.menu-item[data-area="motores"] {
+    background-image: url("imagenes/motores.jpg");
+}
+.menu-item[data-area="torno"] {
+    background-image: url("imagenes/torno.jpg");
+}
+
+.menu-item[data-area="soldadura"] {
+    background-image: url("imagenes/soldadura.jpg");
+}
+
+/* Efecto de escala en el texto al pasar el mouse */
+.menu-item:hover .menu-content {
+    transform: scale(2.0); /* Aumenta el tamaño del texto */
+}
+
+
+
+
+
+
+
+
+  /* Estilos para la tabla de permisos */
+  #proyectos-table {
+    width: 50%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  #proyectos-table th,
+  #proyectos-table td {
+    border: 1px solid #dddddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  #proyectos-table th {
+    background-color: #f2f2f2;
+  }
+  
+  #proyectos-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  #proyectos-table tr:hover {
+    background-color: #e0e0e0;
+  }
