@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
-import { getFirestore, collection, getDocs, updateDoc, doc, addDoc } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, updateDoc, doc, addDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-storage.js"; 
 
 
@@ -36,6 +36,8 @@ const userInfoContainer = document.getElementById("user-info");
 const searchReportesInput = document.getElementById("searchReportes");
 const reportsBody = document.getElementById("reports-body");
 const searchEmpleadosInput = document.getElementById("searchEmpleados");
+const btnBorrarEntries = document.getElementById("btnBorrarEntries");
+
 
 
 searchReportesInput.addEventListener("input", () => {
@@ -58,103 +60,190 @@ searchReportesInput.addEventListener("input", () => {
   }
 });
 
+const resultMessage = document.getElementById("resultMessage");
+
+
+searchReportesInput.addEventListener("input", () => {
+  const searchTerm = searchReportesInput.value.toLowerCase();
+  const reportsRows = reportsBody.getElementsByTagName("tr");
+
+  searchEmpleadosInput.style.display = "none"; // Ocultar la barra de búsqueda de empleados
+  searchReportesInput.style.display = "block"; // Mostrar la barra de búsqueda de reportes
+  employeesListContainer.style.display = "none"; // Ocultar la tabla de empleados
+  reportsListContainer.style.display = "block"; // Mostrar la tabla de reportes
+  permisosListContainer.style.display = "none";
+  proyectosListContainer.style.display = "none";
+
+  for (const row of reportsRows) {
+    const nombreCell = row.cells[0].textContent.toLowerCase(); // Cambiar el índice según la posición de la columna del nombre en tus reportes
+    const curpCell = row.cells[1].textContent.toLowerCase(); // Cambiar el índice según la posición de la columna del CURP en tus reportes
+    const fechaCell = row.cells[3].textContent.toLowerCase(); // Cambiar el índice según la posición de la columna de la fecha en tus reportes
+
+    // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
+    row.style.display = nombreCell.includes(searchTerm) || curpCell.includes(searchTerm) || fechaCell.includes(searchTerm) ? "table-row" : "none";
+  }
+});
+
+
 // Evento para el botón de Reportes
+
 btnReportes.addEventListener("click", async () => {
   console.log("Clic en Reportes");
   textoPrincipal.textContent = "Reportes";
   try {
-    // Obtener la referencia a la colección "horario" en Firebase
     const db = getFirestore(firebaseApp);
-    const horarioCollection = collection(db, "horario");
+    const entriesCollection = collection(db, "entries");
+    const entriesSnapshot = await getDocs(entriesCollection);
 
-    // Obtener una lista de documentos en la colección
-    const horarioSnapshot = await getDocs(horarioCollection);
-
-    // Limpiar el array antes de llenarlo de nuevo
-    horarioItems = [];
-
-    // Iterar a través de los documentos de horario
-    for (const doc of horarioSnapshot.docs) {
-      const horarioData = doc.data();
-      const nombre = horarioData.nombre;
-      const fecha = horarioData.fecha;
-      const dia = horarioData.dia;
-      const tipo = doc.id.includes("_entrada") ? "entrada" : "salida"; // Determinar si es entrada o salida
-      const hora = horarioData[tipo] || "Sin " + tipo;
-      const proyecto = horarioData.proyecto;
-
-      // Buscar si ya existe un objeto con el mismo nombre y fecha en horarioItems
-      let existingItem = horarioItems.find(item => item.nombre === nombre && item.fecha === fecha);
-
-      if (!existingItem) {
-        // Si no existe, crear un nuevo objeto
-        existingItem = {
-          nombre: nombre,
-          fecha: fecha,
-          dia: dia,
-          entrada: "Sin entrada",
-          salida: "Sin salida",
-          hrsOrd: 0, // Se calculará más adelante
-          hrsExtra: 0, // Se calculará más adelante
-          proyecto: proyecto
-        };
-        existingItem[tipo] = hora; // Asignar la hora correspondiente
-        horarioItems.push(existingItem);
-      } else {
-        // Si ya existe, actualizar la entrada o salida
-        existingItem[tipo] = hora;
-      }
-    }
-
-    // Calcular las horas ordinarias y las horas extras y actualizar la tabla
-    horarioItems.forEach(item => {
-      const horaEntrada = new Date(`1970-01-01T${item.entrada}`);
-      const horaSalida = new Date(`1970-01-01T${item.salida}`);
-      const tiempoTrabajado = horaSalida - horaEntrada;
-      item.hrsOrd = tiempoTrabajado >= 9 * 3600000 ? 9 : tiempoTrabajado / 3600000;
-      item.hrsExtra = Math.max(tiempoTrabajado / 3600000 - 9, 0);
-    });
-
-    // Mostrar los datos en la tabla de Reportes
     const reportsListContainer = document.querySelector(".reports-list");
     const reportsBody = document.getElementById("reports-body");
 
     reportsListContainer.style.display = "block";
     reportsBody.innerHTML = "";
 
-    horarioItems.forEach((horarioItem) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${horarioItem.nombre}</td>
-        <td>${horarioItem.fecha}</td>
-        <td>${horarioItem.dia}</td>
-        <td>${horarioItem.entrada}</td>
-        <td>${horarioItem.salida}</td>
-        <td>${horarioItem.hrsOrd.toFixed(2)}</td>
-        <td>${horarioItem.hrsExtra.toFixed(2)}</td>
-        <td>${horarioItem.proyecto}</td>
-      `;
-      reportsBody.appendChild(row);
+    employeesListContainer.style.display = "none";
+    btnAgregar.style.display = "none";
+    permisosListContainer.style.display = "none";
 
-      reportsListContainer.style.display = "block";
-      employeesListContainer.style.display = "none";
-      btnAgregar.style.display = "none";
-      permisosListContainer.style.display = "none";
+    const userPromises = [];
+    const projectPromises = [];
+
+    entriesSnapshot.forEach((entryDoc) => {
+      const entryData = entryDoc.data();
+      const row = document.createElement("tr");
+
+      const userRef = doc(db, "users", entryData.userId);
+      const userPromise = getDoc(userRef).then((userDoc) => {
+        const userData = userDoc.data();
+        if (userData) {
+          const photo = userData.photo || "";
+          const name = userData.name || "Nombre no encontrado";
+          const rfc = userData.rfc || "";
+          const curp = userData.curp || "CURP no encontrado";
+          const paterno = userData.lastName || "CURP no encontrado";
+          const materno = userData.motherLastName || "CURP no encontrado";
+          return { photo, name, curp, rfc, paterno, materno };
+        } else {
+          console.log("Documento de usuario no encontrado");
+          return {
+            photo: "",
+            name: "Usuario no encontrado",
+            curp: "CURP no encontrado",
+            rfc: "",
+            paterno: "Usuario no encontrado",
+            materno: "",
+          };
+        }
+      });
+
+      // Obtener el nombre del proyecto
+      const projectRef = doc(db, "projects", entryData.projectId);
+      const projectPromise = getDoc(projectRef).then((projectDoc) => {
+        const projectData = projectDoc.data();
+        return projectData ? projectData.nameProject : "Proyecto no encontrado";
+      });
+
+      userPromises.push(userPromise);
+      projectPromises.push(projectPromise);
+
+      Promise.all([userPromise, projectPromise]).then(([user, nameProject]) => {
+        const { name, curp, photo, rfc, paterno, materno } = user;
+        const entryTime = entryData.entryTime.toDate();
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>
+            <img src="${photo}" alt="Foto de perfil" style="width: 50px; height: 50px;">
+          </td>
+          <td>${name} ${paterno} ${materno}</td>
+          <td>${rfc}</td>
+          <td>${curp}</td>
+          <td>${entryTime.toLocaleString()}</td>
+          <td>${nameProject}</td>
+        `;
+        reportsBody.appendChild(row);
+      });
     });
+
+    // Wait for all promises to resolve
+    await Promise.all([...userPromises, ...projectPromises]);
+
+    // Display containers
+    permisosListContainer.style.display = "none";
+    reportsListContainer.style.display = "block";
+    employeesListContainer.style.display = "none";
+    proyectosListContainer.style.display = "none";
+
+    // Check if export button exists and remove it
+    const existingExportButton = reportsListContainer.querySelector("#exportButton");
+    if (existingExportButton) {
+      existingExportButton.remove();
+    }
+
+    // Create and append export button
+    const exportButton = document.createElement("button");
+    exportButton.id = "exportButton";
+    exportButton.textContent = "Exportar a Excel";
+    exportButton.addEventListener("click", () => {
+      exportToExcel(reportsBody);
+    });
+    reportsListContainer.appendChild(exportButton);
   } catch (error) {
-    console.error("Error al cargar los reportes:", error);
+    console.error("Error al cargar la lista de reporte:", error);
   }
 });
 
+function exportToExcel(reportsBody) {
+  const wb = XLSX.utils.table_to_book(reportsBody, { sheet: "Reportes" });
+  XLSX.writeFile(wb, "reportes.xlsx");
+}
+
+//BORRAR ENTRADAS
+
+btnBorrarEntries.addEventListener("click", async () => {
+  // Mostrar un mensaje de confirmación personalizado
+  const userInput = prompt("Para borrar todos los documentos en la colección 'entries', escribe 'BORRAR' y presiona OK:");
+
+  if (userInput && userInput.toUpperCase() === "BORRAR") {
+    try {
+      const db = getFirestore(firebaseApp);
+      const entriesCollection = collection(db, "entries");
+
+      // Obtener todos los documentos en la colección "entries"
+      const entriesSnapshot = await getDocs(entriesCollection);
+
+      // Eliminar cada documento
+      entriesSnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+
+      // Mostrar mensaje de éxito
+      resultMessage.textContent = "Todos los documentos en la colección 'entries' han sido eliminados.";
+    } catch (error) {
+      console.error("Error al intentar borrar los documentos:", error);
+
+      // Mostrar mensaje de error
+      resultMessage.textContent = "Error al intentar borrar los documentos. Consulta la consola para más detalles.";
+    }
+  } else {
+    // Mostrar mensaje de cancelación si el usuario no ingresó la confirmación correcta
+    resultMessage.textContent = "Operación de borrado cancelada. Confirmación incorrecta.";
+  }
+});
+
+
+
+
+
 searchEmpleadosInput.addEventListener("input", () => {
   const searchTerm = searchEmpleadosInput.value.toLowerCase();
-  const empleadosRows = employeesBody.getElementsByTagName("tr");
+  const empleadosRows = reportsBody.getElementsByTagName("tr");
 
 
   searchEmpleadosInput.style.display = "block"; // Mostrar la barra de búsqueda de empleados
   searchReportesInput.style.display = "none"; // Ocultar la barra de búsqueda de reportes
   employeesListContainer.style.display = "block"; // Mostrar la tabla de empleados
-  reportsListContainer.style.display = "none"; // Ocultar la tabla de reportes
+  reportsListContainer.style.display = "block"; // Ocultar la tabla de reportes
   permisosListContainer.style.display = "none";
   proyectosListContainer.style.display="none";
 
@@ -374,7 +463,7 @@ btnGuardar.addEventListener("click", async () => {
     document.getElementById("rfc").value = "";
     document.getElementById("phoneNumber").value = "";
     document.getElementById("photo").value = ""; 
-
+    document.getElementById("correo");
     await updateTable();
   } catch (error) {
     console.error("Error al agregar nuevo usuario:", error);

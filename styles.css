@@ -199,7 +199,6 @@ body {
 
 #reports-table th,
 #reports-table td {
-    border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
 }
@@ -278,7 +277,6 @@ body {
   
   #permisos-table th,
   #permisos-table td {
-    border: 1px solid #dddddd;
     padding: 8px;
     text-align: left;
   }
@@ -386,7 +384,6 @@ body {
   
   #proyectos-table th,
   #proyectos-table td {
-    border: 1px solid #dddddd;
     padding: 8px;
     text-align: center;
   }
