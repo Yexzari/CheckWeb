@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
-import { getFirestore, collection, getDocs, updateDoc, doc, addDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-storage.js"; 
+import { getFirestore, collection, getDocs, updateDoc, doc, addDoc, getDoc, deleteDoc, where, query } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-storage.js";
 
 
 // Configura la información de tu proyecto de Firebase
@@ -23,8 +23,8 @@ const sidebar = document.querySelector(".sidebar");
 const container = document.querySelector(".container");
 const btnLider = document.getElementById("btnLider");
 const btnReportes = document.getElementById("btnReportes");
-const btnPermisos = document.getElementById("btnPermisos"); 
-const btnProyectos = document.getElementById("btnProyectos"); 
+const btnPermisos = document.getElementById("btnPermisos");
+const btnProyectos = document.getElementById("btnProyectos");
 const proyectosListContainer = document.querySelector(".proyectos-list");
 const permisosListContainer = document.querySelector(".permisos-list");
 const reportsListContainer = document.querySelector(".reports-list");
@@ -49,7 +49,7 @@ searchReportesInput.addEventListener("input", () => {
   reportsListContainer.style.display = "block"; // Mostrar la tabla de reportes
   employeesListContainer.style.display = "none"; // Ocultar la tabla de empleados
   proyectosListContainer.style.display = "none";
-  permisosListContainer.style.display="none";
+  permisosListContainer.style.display = "none";
 
   for (const row of reportesRows) {
     const nombreCell = row.cells[0].textContent.toLowerCase();
@@ -150,6 +150,9 @@ btnReportes.addEventListener("click", async () => {
         const { name, curp, photo, rfc, paterno, materno } = user;
         const entryTime = entryData.entryTime.toDate();
 
+        const date = entryTime.toLocaleDateString();
+        const time = entryTime.toLocaleTimeString();
+
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>
@@ -158,14 +161,15 @@ btnReportes.addEventListener("click", async () => {
           <td>${name} ${paterno} ${materno}</td>
           <td>${rfc}</td>
           <td>${curp}</td>
-          <td>${entryTime.toLocaleString()}</td>
+          <td>${date}</td>
+          <td>${time}</td>
           <td>${nameProject}</td>
-        `;
+          <td><button class="btn btn-primary" data-userid="${entryData.userId}">Reporte</button></td>
+          `;
         reportsBody.appendChild(row);
       });
     });
 
-    // Wait for all promises to resolve
     await Promise.all([...userPromises, ...projectPromises]);
 
     // Display containers
@@ -173,21 +177,22 @@ btnReportes.addEventListener("click", async () => {
     reportsListContainer.style.display = "block";
     employeesListContainer.style.display = "none";
     proyectosListContainer.style.display = "none";
-
-    // Check if export button exists and remove it
     const existingExportButton = reportsListContainer.querySelector("#exportButton");
     if (existingExportButton) {
       existingExportButton.remove();
     }
-
+    
     // Create and append export button
-    const exportButton = document.createElement("button");
-    exportButton.id = "exportButton";
-    exportButton.textContent = "Exportar a Excel";
-    exportButton.addEventListener("click", () => {
+
+    
+    // Enlazar el botón creado dinámicamente con el botón HTML existente
+    const exportButtonHTML = document.getElementById("exportButtonHTML");
+    exportButtonHTML.addEventListener("click", () => {
       exportToExcel(reportsBody);
     });
+    
     reportsListContainer.appendChild(exportButton);
+    
   } catch (error) {
     console.error("Error al cargar la lista de reporte:", error);
   }
@@ -201,34 +206,30 @@ function exportToExcel(reportsBody) {
 //BORRAR ENTRADAS
 
 btnBorrarEntries.addEventListener("click", async () => {
-  // Mostrar un mensaje de confirmación personalizado
   const userInput = prompt("Para borrar todos los documentos en la colección 'entries', escribe 'BORRAR' y presiona OK:");
+  btnBorrarEntries.classList.add("delete-button");
 
   if (userInput && userInput.toUpperCase() === "BORRAR") {
     try {
       const db = getFirestore(firebaseApp);
       const entriesCollection = collection(db, "entries");
 
-      // Obtener todos los documentos en la colección "entries"
       const entriesSnapshot = await getDocs(entriesCollection);
 
-      // Eliminar cada documento
       entriesSnapshot.forEach(async (doc) => {
         await deleteDoc(doc.ref);
       });
 
-      // Mostrar mensaje de éxito
       resultMessage.textContent = "Todos los documentos en la colección 'entries' han sido eliminados.";
     } catch (error) {
       console.error("Error al intentar borrar los documentos:", error);
 
-      // Mostrar mensaje de error
       resultMessage.textContent = "Error al intentar borrar los documentos. Consulta la consola para más detalles.";
     }
   } else {
-    // Mostrar mensaje de cancelación si el usuario no ingresó la confirmación correcta
     resultMessage.textContent = "Operación de borrado cancelada. Confirmación incorrecta.";
   }
+
 });
 
 
@@ -245,7 +246,7 @@ searchEmpleadosInput.addEventListener("input", () => {
   employeesListContainer.style.display = "block"; // Mostrar la tabla de empleados
   reportsListContainer.style.display = "block"; // Ocultar la tabla de reportes
   permisosListContainer.style.display = "none";
-  proyectosListContainer.style.display="none";
+  proyectosListContainer.style.display = "none";
 
   for (const row of empleadosRows) {
     const nombreCell = row.cells[1].textContent.toLowerCase();
@@ -275,6 +276,7 @@ btnLider.addEventListener("click", async () => {
         <td>${usuarioData.rfc}</td>
         <td>${usuarioData.telefono}</td>
       `;
+      console.log(usuarioData.imageUrl)
       employeesBody.appendChild(row);
     });
     permisosListContainer.style.display = "none";
@@ -283,7 +285,7 @@ btnLider.addEventListener("click", async () => {
     proyectosListContainer.style.display = "none";
 
     btnAgregar.style.display = "block"; // Muestra el botón Agregar
-    
+
   } catch (error) {
     console.error("Error al cargar la lista de empleados:", error);
   }
@@ -298,7 +300,7 @@ btnPermisos.addEventListener("click", async () => {
     const permisosCollection = collection(db, "permisos");
     const permisosSnapshot = await getDocs(permisosCollection);
 
-    const permisosBody = document.getElementById("permisos-body"); 
+    const permisosBody = document.getElementById("permisos-body");
 
     // Limpiar la tabla de permisos antes de rellenarla nuevamente
     permisosBody.innerHTML = "";
@@ -428,8 +430,8 @@ btnGuardar.addEventListener("click", async () => {
 
 
   try {
-      // Crear un nuevo usuario en Firebase Authentication
-  await firebase.auth().createUserWithEmailAndPassword(email, password);
+    // Crear un nuevo usuario en Firebase Authentication
+    await firebase.auth().createUserWithEmailAndPassword(email, password);
 
     const db = getFirestore(firebaseApp);
     const usuariosCollection = collection(db, "lideres");
@@ -446,11 +448,11 @@ btnGuardar.addEventListener("click", async () => {
     await addDoc(usuariosCollection, {
       nombre: name,
       apellidoPaterno: lastName,
-      apellidoMaterno:motherLastname,
-      rfc:rfc,
-      telefono:phoneNumber,
+      apellidoMaterno: motherLastname,
+      rfc: rfc,
+      telefono: phoneNumber,
       photo: imageUrl
-        });
+    });
 
     console.log("Nuevo usuario con imagen agregado con éxito.");
 
@@ -462,7 +464,7 @@ btnGuardar.addEventListener("click", async () => {
     document.getElementById("motherLastName").value = "";
     document.getElementById("rfc").value = "";
     document.getElementById("phoneNumber").value = "";
-    document.getElementById("photo").value = ""; 
+    document.getElementById("photo").value = "";
     document.getElementById("correo");
     await updateTable();
   } catch (error) {
@@ -470,51 +472,116 @@ btnGuardar.addEventListener("click", async () => {
   }
 });
 
-    const btnCerrar = document.getElementById("btnCerrar");
-    btnCerrar.addEventListener("click", () => {
-    const addUserForm = document.getElementById("add-user-form");
-    addUserForm.style.display = "none";
+const btnCerrar = document.getElementById("btnCerrar");
+btnCerrar.addEventListener("click", () => {
+  const addUserForm = document.getElementById("add-user-form");
+  addUserForm.style.display = "none";
 
-    // Borrar los valores de los campos de texto
-    document.getElementById("nombre").value = "";
-    document.getElementById("area").value = "";
-    document.getElementById("correo").value = "";
+  // Borrar los valores de los campos de texto
+  document.getElementById("nombre").value = "";
+  document.getElementById("area").value = "";
+  document.getElementById("correo").value = "";
 });
 
-//Boton Proyectos
 btnProyectos.addEventListener("click", async () => {
   console.log("Clic en Proyectos");
   textoPrincipal.textContent = "Proyectos";
 
   try {
     const db = getFirestore(firebaseApp);
-    const proyectsCollection = collection(db, "projects");
-    const proyectsSnapshot = await getDocs(proyectsCollection);
+    const projectsCollection = collection(db, "projects");
+    const projectsSnapshot = await getDocs(projectsCollection);
 
-    const proyectosBody = document.getElementById("proyectos-body"); 
+    const proyectosBody = document.getElementById("proyectos-body");
 
-    // Limpiar la tabla de permisos antes de rellenarla nuevamente
+    // Limpiar el contenedor de proyectos antes de rellenarlo nuevamente
     proyectosBody.innerHTML = "";
+    const imagePromises = [];
 
-    proyectsSnapshot.forEach((proyectDoc, index) => {
-      const projectData = proyectDoc.data();
-      const row = document.createElement("tr");
+    projectsSnapshot.forEach(async (projectDoc) => {
+      const projectData = projectDoc.data();
+      const card = document.createElement("div");
+      card.classList.add("card", "square-card");
 
-      if (index === 0) {
-        row.innerHTML = `
-          <td>${projectData.lider}</td>
-          <td>${projectData.nameProject}</td>
-        `;
-      } else {
-        row.innerHTML = `
-          <td>${projectData.lider}</td>
-          <td>${projectData.nameProject}</td>
-        `;
-      }
+      const cardBody = document.createElement("div");
+      cardBody.classList.add("card-body");
 
-      proyectosBody.appendChild(row);
+      const folderImage = document.createElement("img");
+      folderImage.src = "imagenes/motores.jpg"; // Cambia esto por la ruta real de la imagen de tu carpeta
+      folderImage.classList.add("folder-image");
+      folderImage.style.width = "100%";
+      imagePromises.push(new Promise(resolve => {
+        folderImage.onload = resolve;
+        folderImage.onerror = resolve; // También resolvemos si hay un error de carga
+      }));
+
+      const title = document.createElement("h5");
+      title.classList.add("card-title");
+      title.textContent = projectData.nameProject;
+
+      const text = document.createElement("p");
+      text.classList.add("card-text");
+      text.textContent = "Lider: " + projectData.lider;
+      // Añadir un evento de clic al card
+      card.addEventListener("click", async () => {
+        try {
+          // Construir una consulta para buscar todas las entradas relacionadas con este proyecto
+          const entriesCollection = collection(db, "entries");
+          const entriesQuery = query(entriesCollection, where("projectId", "==", projectDoc.id));
+          const entriesSnapshot = await getDocs(entriesQuery);
+
+          // Limpiar el contenido de la tabla dentro del modal
+          document.getElementById("userInfoBody").innerHTML = "";
+
+          // Mostrar información de los usuarios asignados al proyecto en una tabla dentro del modal
+          entriesSnapshot.forEach(async (entryDoc) => {
+            const entryData = entryDoc.data();
+            const userId = entryData.userId;
+            const entryDateTime = entryData.entryTime.toDate();
+            const entryDate = entryDateTime.toLocaleDateString();
+            const entryTime = entryDateTime.toLocaleTimeString();
+            // Buscar información del usuario en la colección de usuarios
+            const userRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              console.log("Usuario asignado:", userData);
+
+              // Crear una fila de la tabla con los datos del usuario
+              var row = document.createElement("tr");
+              row.innerHTML = `
+              <td><img src="${userData.photo}" alt="Foto de perfil" style="width: 50px; height: 50px;"></td>
+                <td>${userData.name} ${userData.lastName} ${userData.motherLastName}</td>
+                <td>${userData.rfc}</td>
+                <td>${userData.phoneNumber}</td>
+                <td>${entryDate}</td>
+                <td>${entryTime}</td>
+                <!-- Agrega más celdas según sea necesario -->
+              `;
+
+              // Agregar la fila a la tabla dentro del modal
+              document.getElementById("userInfoBody").appendChild(row);
+            } else {
+              console.log("Usuario no encontrado");
+            }
+          });
+
+          // Mostrar el modal
+          modal.style.display = "block";
+        } catch (error) {
+          console.error("Error al buscar usuarios asignados al proyecto:", error);
+        }
+      });
+      cardBody.appendChild(folderImage);
+
+      cardBody.appendChild(title);
+      cardBody.appendChild(text);
+      
+      card.appendChild(cardBody);
+
+      // Agregar la card al contenedor de cards
+      proyectosBody.appendChild(card);
     });
-
 
     reportsListContainer.style.display = "none";
     employeesListContainer.style.display = "none";
@@ -523,35 +590,55 @@ btnProyectos.addEventListener("click", async () => {
 
     btnAgregar.style.display = "none";
 
-
   } catch (error) {
     console.error("Error al cargar los proyectos:", error);
   }
 });
-  
-  async function updateTable() {
-      try {
-          const db = getFirestore(firebaseApp);
-          const usuariosCollection = collection(db, "lideres");
-          const usuariosSnapshot = await getDocs(usuariosCollection);
-  
-          employeesBody.innerHTML = "";
-  
-          usuariosSnapshot.forEach((usuarioDoc) => {
-              const usuarioData = usuarioDoc.data();
-              const row = document.createElement("tr");
-              row.innerHTML = `
+
+// Obtener el modal
+var modal = document.getElementById("userModal");
+
+// Obtener el span que cierra el modal
+var span = document.getElementsByClassName("close")[0];
+
+// Cuando se hace clic en el botón de cierre del modal, cerrarlo
+span.onclick = function () {
+  modal.style.display = "none";
+};
+
+// Cuando el usuario hace clic fuera del modal, cerrarlo
+window.onclick = function (event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+};
+
+
+
+
+async function updateTable() {
+  try {
+    const db = getFirestore(firebaseApp);
+    const usuariosCollection = collection(db, "lideres");
+    const usuariosSnapshot = await getDocs(usuariosCollection);
+
+    employeesBody.innerHTML = "";
+
+    usuariosSnapshot.forEach((usuarioDoc) => {
+      const usuarioData = usuarioDoc.data();
+      const row = document.createElement("tr");
+      row.innerHTML = `
               <td><img src="${usuarioData.photo}" alt="Imagen de perfil" style="max-width: 50px;"></td>
               <td>${usuarioData.nombre} ${usuarioData.apellidoPaterno} ${usuarioData.apellidoMaterno}</td>
               <td>${usuarioData.rfc}</td>
               <td>${usuarioData.telefono}</td>
                   <td>${usuarioData.correo}</td>
               `;
-              employeesBody.appendChild(row);
-          });
-  
-          console.log("Tabla actualizada con éxito.");
-      } catch (error) {
-          console.error("Error al actualizar la tabla:", error);
-      }
+      employeesBody.appendChild(row);
+    });
+
+    console.log("Tabla actualizada con éxito.");
+  } catch (error) {
+    console.error("Error al actualizar la tabla:", error);
   }
+}

@@ -12,12 +12,15 @@
 
 </head>
 <body>
+    <div class="card" style="height: 250px;">
+        <img src="imagenes/soldadura.jpg" style="height: 100%;" />
+      </div>
     <!-- Barra de navegación -->
-    <header class="navbar" style="background-color: #062d82; color: white; padding: 10px;">
+    <header class="navbar" style=" color: #242c5c; padding: 10px;">
         <div class="logo">
             <img src="imagenes/logo.png" alt="Logo de la empresa" style="width: 50px; height: 50px;">
         </div>
-        <nav class="nav-links" style="display: flex; align-items: center;">
+        <nav class="nav-links" style="display: flex; align-items: center;" data-bs-theme="dark">
             <a href="#" id="btnReportes" class="nav-link">Reportes</a>
             <a href="#" id="btnLider" class="nav-link">Lider</a>
             <a href="#" id="btnPermisos" class="nav-link">Permisos</a>
@@ -68,10 +71,9 @@
         </div>
         
         <div class="reports-list" style="display: none;">
-            <input type="text" id="searchReportes" placeholder="Buscar">
-            <button id="btnBorrarEntries" class="btn btn-danger">Borrar Entradas</button>
-            <button id="btnExcel">Excel</button>
+            <input type="text" id="searchReportes" placeholder="Buscar">         
             <div class="table-container">
+                <button id="exportButtonHTML" class="btn btn-success">Exportar</button>
                 <table id="reports-table" class="table">
                     <thead>
                         <tr>
@@ -80,11 +82,14 @@
                             <th scope="col">RFC</th>
                             <th scope="col">CURP</th>
                             <th scope="col">Ingresos</th>
+                            <th scope="col">Hora</th>
                             <th scope="col">Proyectos</th>
+                            <th scope="col">Información</th>
                         </tr>
                     </thead>
                     <tbody id="reports-body"></tbody>
                 </table>
+                <button id="btnBorrarEntries" class="btn btn-danger">Borrar Entradas</button>
             </div>
         </div>
 
@@ -109,18 +114,32 @@
         </div>
         
         <div class="proyectos-list" style="display: none;">
-            <div class="table-container">
-                <table id="proyectos-table">
-                    <thead>
-                        <tr>
-                            <th>Lider</th>
-                            <th>Proyectos</th>
-                        </tr>
-                    </thead>
-                    <tbody id="proyectos-body"></tbody>
-                </table>
+            <div id="proyectos-body" class="card-container">
             </div>
-        </div>
+        </div>        
+<!-- Modal -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <table id="userInfoTable" class="table">
+        <thead>
+          <tr>
+            <th>Foto</th>
+            <th>Nombre</th>
+            <th>RFC</th>
+            <th>Télefono</th>
+            <th>Día de ingreso</th>
+            <th>Hora de Ingreso</th>
+            <!-- Agrega más columnas según sea necesario -->
+          </tr>
+        </thead>
+        <tbody id="userInfoBody"></tbody>
+      </table>
+    </div>
+  </div>
+  
+  
+        
         <div class="lider-list" id="liderList" style="display: none;">
             <!-- Agrega la barra de búsqueda de lideres -->
             <input type="text" id="searchLider" placeholder="Buscar Lider...">
