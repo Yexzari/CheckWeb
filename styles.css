@@ -182,7 +182,10 @@ body {
 #add-user-form[style*="display: block"] {
     display: block !important;
 }
-
+/* Mostrar el formulario solo cuando esté visible */
+#add-proyect-form[style*="display: block"] {
+  display: block !important;
+}
 
 
 /* Estilos para la tabla de Reportes */

@@ -17,6 +17,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 
+
 // Variables globales
 let horarioItems = [];
 const sidebar = document.querySelector(".sidebar");
@@ -483,6 +484,45 @@ btnCerrar.addEventListener("click", () => {
   document.getElementById("correo").value = "";
 });
 
+// Mostrar el formulario cuando se haga clic en el botón
+const btnMostrarFormulario = document.getElementById("btnMostrarFormulario");
+btnMostrarFormulario.addEventListener("click", () => {
+    const addProyectForm = document.getElementById("add-proyect-form");
+    addProyectForm.style.display = "block";
+});
+// Agregar un nuevo proyecto cuando se haga clic en el botón "Guardar"
+const btnGuardar2 = document.getElementById("btnGuardar2");
+btnGuardar2.addEventListener("click", async () => {
+    const nombreProyecto = document.getElementById("name").value;
+    const liderProyecto = document.getElementById("lider").value;
+    const clienteProyecto = document.getElementById("cliente").value;
+
+    try {
+        // Obtener una referencia a la base de datos de Firebase
+        const db = getFirestore(firebaseApp);
+
+        // Guardar los datos del proyecto en la colección "projects"
+        await addDoc(collection(db, "projects"), {
+            nameProject: nombreProyecto,
+            lider: liderProyecto,
+            cliente: clienteProyecto
+        });
+
+        // Después de guardar el proyecto, puedes limpiar el formulario o cerrarlo
+        const addProyectForm = document.getElementById("add-proyect-form");
+        addProyectForm.style.display = "none";
+
+        // También puedes recargar la lista de proyectos para mostrar el nuevo proyecto agregado
+    } catch (error) {
+        console.error("Error al guardar el proyecto:", error);
+    }
+});
+
+
+
+
+
+
 btnProyectos.addEventListener("click", async () => {
   console.log("Clic en Proyectos");
   textoPrincipal.textContent = "Proyectos";
@@ -587,12 +627,12 @@ btnProyectos.addEventListener("click", async () => {
     employeesListContainer.style.display = "none";
     proyectosListContainer.style.display = "block";
     permisosListContainer.style.display = "none";
-
     btnAgregar.style.display = "none";
 
   } catch (error) {
     console.error("Error al cargar los proyectos:", error);
   }
+  
 });
 
 // Obtener el modal

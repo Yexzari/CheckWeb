@@ -116,7 +116,18 @@
         <div class="proyectos-list" style="display: none;">
             <div id="proyectos-body" class="card-container">
             </div>
-        </div>        
+        </div>    
+        <div id="add-proyect-form" style="display: none;">
+            <p class="form-title">Agregar Proyecto</p>
+            <input type="text" id="name" placeholder="Nombre del proyecto">
+            <input type="text" id="lider" placeholder="Lider">
+            <input type="text" id="cliente" placeholder="Cliente">
+            <button id="btnGuardar2">Guardar</button>
+            <button id="btnCerrar">Cerrar</button>
+        </div>
+        
+        <button id="btnMostrarFormulario">Agregar Proyecto</button>
+        
 <!-- Modal -->
 <div id="userModal" class="modal">
     <div class="modal-content">
@@ -166,6 +177,7 @@
                 <button id="btnGuardar">Guardar</button>
                 <button id="btnCerrar">Cerrar</button>
             </div>
+ 
     </main>
 
     <script type="module" src="inicio.js"></script>
