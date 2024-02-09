@@ -107,7 +107,18 @@ body {
     float: right; /* Alineación a la derecha */
 }
 
-
+/* Estilos para el botón Agregar */
+#btnMostrarFormulario {
+  position: relative;
+  margin-top: 20px; /* Espacio entre la tabla y el botón */
+  margin-right: 100px;
+  background-color: #242c5c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  float: right; /* Alineación a la derecha */
+}
 /* Mostrar el botón solo cuando esté visible */
 .add-button[style*="display: block"] {
     display: block !important;
@@ -126,20 +137,47 @@ body {
     transform: translate(-50%, -50%);
     z-index: 1000; /* Asegurarse de que esté en la parte superior */
 }
-
-/* Estilos para el formulario de agregar */
-#add-user-form {
-    display: none;
-    background-color: #f2f2f2;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
+/* Estilos para el fondo oscuro del modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 900;
 }
+
+/* Estilos para el modal */
+.modal-form {
+  display: none;
+  background-color: #f2f2f2;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+
+/* Estilos para el modal */
+#add-proyect-form {
+  display: none;
+  background-color: #f2f2f2;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
 
 /* Estilos para el título del formulario */
 .form-title {
@@ -149,13 +187,22 @@ body {
 }
 
 /* Estilos para los campos del formulario */
-#add-user-form input {
+#add-proyect-form input {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
+/* Estilos para los campos del formulario */
+#add-user-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
 
 /* Estilos para el botón Guardar del formulario */
 #btnGuardar {
@@ -167,7 +214,15 @@ body {
     cursor: pointer;
     float: right;
 }
-
+#btnGuardar2 {
+  background-color: #242c5c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  float: right;
+}
 #btnCerrar {
     background-color: red;
     color: white;

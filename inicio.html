@@ -25,6 +25,8 @@
             <a href="#" id="btnLider" class="nav-link">Lider</a>
             <a href="#" id="btnPermisos" class="nav-link">Permisos</a>
             <a href="#" id="btnProyectos" class="nav-link">Proyectos</a>
+            <a href="#" id="btnColaborador" class="nav-link">Colaboradores</a>
+
         </nav> 
     </header>
 
@@ -34,7 +36,7 @@
         </div>
         
         <button id="btnAgregar" class="add-button" style="display: none;">Agregar</button>
-
+        
         <div class="employees-list" style="display: none;">
             <!-- Agrega la barra de búsqueda de empleados -->
             <input type="text" id="searchEmpleados" placeholder="Buscar lider...">
@@ -42,7 +44,6 @@
                 <table id="employees-table">
                     <thead>
                         <tr>
-                            <th>Foto Perfil</th>
                             <th>Nombre</th>
                             <th>RFC</th>
                             <th>Télefono</th>
@@ -59,7 +60,6 @@
                 <table id="employees-table">
                     <thead>
                         <tr>
-                            <th>Foto Perfil</th>
                             <th>Nombre</th>
                             <th>RFC</th>
                             <th>Télefono</th>
@@ -69,6 +69,39 @@
                 </table>
             </div>
         </div>
+
+
+
+        <div class="colaboradores-list" style="display: none;">
+            <input type="text" id="searchColaboradores" placeholder="Buscar">         
+            <div class="table-container">
+                <table id="colaboradores-table" class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">RFC</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="colaboradores-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
         
         <div class="reports-list" style="display: none;">
             <input type="text" id="searchReportes" placeholder="Buscar">         
@@ -84,12 +117,11 @@
                             <th scope="col">Ingresos</th>
                             <th scope="col">Hora</th>
                             <th scope="col">Proyectos</th>
-                            <th scope="col">Información</th>
                         </tr>
                     </thead>
                     <tbody id="reports-body"></tbody>
                 </table>
-                <button id="btnBorrarEntries" class="btn btn-danger">Borrar Entradas</button>
+                <button id="btnBorrarEntries" class="btn btn-danger" disabled>Borrar Entradas</button>
             </div>
         </div>
 
@@ -113,11 +145,20 @@
             </div>
         </div>
         
-        <div class="proyectos-list" style="display: none;">
-            <div id="proyectos-body" class="card-container">
-            </div>
-        </div>    
-        <div id="add-proyect-form" style="display: none;">
+        <div id="proyectos-list" class="proyectos-list" style="display: none;">
+
+            <table id="proyectos-table" class="proyectos-table">
+                <thead>
+                    <tr>
+                        <th>Proyecto</th>
+                        <!-- Puedes agregar más encabezados según sea necesario -->
+                    </tr>
+                </thead>
+                <tbody id="proyectos-body" class="proyectos-body"></tbody>
+            </table>
+        </div>
+        <div id="modalOverlay" class="modal-overlay"></div>
+        <div id="add-proyect-form" class="modal-form">
             <p class="form-title">Agregar Proyecto</p>
             <input type="text" id="name" placeholder="Nombre del proyecto">
             <input type="text" id="lider" placeholder="Lider">
@@ -125,8 +166,8 @@
             <button id="btnGuardar2">Guardar</button>
             <button id="btnCerrar">Cerrar</button>
         </div>
-        
-        <button id="btnMostrarFormulario">Agregar Proyecto</button>
+        <button id="btnMostrarFormulario" style="display: none;">Agregar Proyecto</button>
+
         
 <!-- Modal -->
 <div id="userModal" class="modal">
@@ -166,17 +207,19 @@
                 </table>
             </div>
         </div>
-            <div id="add-user-form" style="display: none;">
-                <p class="form-title">Agregar lider</p>
-                <input type="text" id="name" placeholder="Nombre">
-                <input type="text" id="lastname" placeholder="Apellido paterno">
-                <input type="text" id="motherLastName" placeholder="Apellido materno">
-                <input type="text" id="rfc" placeholder="rfc">
-                <input type="text" id="phoneNumber" placeholder="Télefono">
-                <input type="file" id="photo" accept="image/*" />
-                <button id="btnGuardar">Guardar</button>
-                <button id="btnCerrar">Cerrar</button>
-            </div>
+        <div id="add-user-form" style="display: none;">
+            <p class="form-title">Agregar líder</p>
+            <input type="text" id="name" placeholder="Nombre">
+            <input type="text" id="lastname" placeholder="Apellido paterno">
+            <input type="text" id="motherLastName" placeholder="Apellido materno">
+            <input type="text" id="rfc" placeholder="RFC">
+            <input type="text" id="phoneNumber" placeholder="Teléfono">
+            <input type="text" id="correo" placeholder="Correo electrónico">
+            <input type="password" id="pass" placeholder="Contraseña">
+            <button id="btnGuardar">Guardar</button>
+            <button id="btnCerrar">Cerrar</button>
+          </div>
+          
  
     </main>
 

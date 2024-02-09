@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
 import { getFirestore, collection, getDocs, updateDoc, doc, addDoc, getDoc, deleteDoc, where, query } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-storage.js";
 
@@ -24,11 +24,14 @@ const sidebar = document.querySelector(".sidebar");
 const container = document.querySelector(".container");
 const btnLider = document.getElementById("btnLider");
 const btnReportes = document.getElementById("btnReportes");
+const btnColaborador = document.getElementById("btnColaborador");
+
 const btnPermisos = document.getElementById("btnPermisos");
 const btnProyectos = document.getElementById("btnProyectos");
 const proyectosListContainer = document.querySelector(".proyectos-list");
 const permisosListContainer = document.querySelector(".permisos-list");
 const reportsListContainer = document.querySelector(".reports-list");
+const colaboradorListContainer = document.querySelector(".colaboradores-list");
 const employeesListContainer = document.querySelector(".employees-list");
 const textoPrincipal = document.getElementById("textoPrincipal");
 const employeesTable = document.getElementById("employees-table");
@@ -50,6 +53,8 @@ searchReportesInput.addEventListener("input", () => {
   reportsListContainer.style.display = "block"; // Mostrar la tabla de reportes
   employeesListContainer.style.display = "none"; // Ocultar la tabla de empleados
   proyectosListContainer.style.display = "none";
+  btnMostrarFormulario.style.display = "none";
+
   permisosListContainer.style.display = "none";
 
   for (const row of reportesRows) {
@@ -64,6 +69,88 @@ searchReportesInput.addEventListener("input", () => {
 const resultMessage = document.getElementById("resultMessage");
 
 
+
+
+btnColaborador.addEventListener("click", async () => {
+  console.log("Clic en Colaboradores");
+  textoPrincipal.textContent = "Colaboradores";
+
+  try {
+    const db = getFirestore(firebaseApp);
+    const usersCollection = collection(db, "users");
+    const usersSnapshot = await getDocs(usersCollection);
+
+    const colaboradorListContainer = document.querySelector(".colaboradores-list");
+    const colaborBody = document.getElementById("colaboradores-body");
+
+    colaboradorListContainer.style.display = "block";
+    colaborBody.innerHTML = "";
+    reportsListContainer.style.display = "none";
+    employeesListContainer.style.display = "none";
+    btnAgregar.style.display = "none";
+    permisosListContainer.style.display = "none";
+    btnMostrarFormulario.style.display = "none";
+
+    usersSnapshot.forEach((userDoc) => {
+      const userData = userDoc.data();
+      const name = userData.name || "Nombre no encontrado";
+      const rfc = userData.rfc || "";
+      const curp = userData.curp || "CURP no encontrado";
+      const paterno = userData.lastName || "Apellido no encontrado";
+      const materno = userData.motherLastName || "Apellido no encontrado";
+
+      // Resto de tu lógica para mostrar la información del usuario
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${name} ${paterno} ${materno}</td>
+        <td>${rfc}</td>
+        <td>${'undefined'}</td>
+      `;
+      colaborBody.appendChild(row);
+    });
+
+    // Resto de tu código para mostrar detalles adicionales si es necesario
+
+    // Display containers
+    permisosListContainer.style.display = "none";
+    colaboradorListContainer.style.display = "block";
+    employeesListContainer.style.display = "none";
+    proyectosListContainer.style.display = "none";
+    addProyectForm.style.display = "none";
+    btnMostrarFormulario.style.display = "none";
+    reportsListContainer.style.display = "none";
+
+  } catch (error) {
+    console.error("Error al cargar la lista de colaboradores:", error);
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 searchReportesInput.addEventListener("input", () => {
   const searchTerm = searchReportesInput.value.toLowerCase();
   const reportsRows = reportsBody.getElementsByTagName("tr");
@@ -74,6 +161,11 @@ searchReportesInput.addEventListener("input", () => {
   reportsListContainer.style.display = "block"; // Mostrar la tabla de reportes
   permisosListContainer.style.display = "none";
   proyectosListContainer.style.display = "none";
+  addProyectForm.style.display = "none";
+  btnMostrarFormulario.style.display = "none";
+  colaboradorListContainer.style.display = "none";
+
+
 
   for (const row of reportsRows) {
     const nombreCell = row.cells[0].textContent.toLowerCase(); // Cambiar el índice según la posición de la columna del nombre en tus reportes
@@ -105,6 +197,7 @@ btnReportes.addEventListener("click", async () => {
     employeesListContainer.style.display = "none";
     btnAgregar.style.display = "none";
     permisosListContainer.style.display = "none";
+    btnMostrarFormulario.style.display = "none";
 
     const userPromises = [];
     const projectPromises = [];
@@ -165,7 +258,6 @@ btnReportes.addEventListener("click", async () => {
           <td>${date}</td>
           <td>${time}</td>
           <td>${nameProject}</td>
-          <td><button class="btn btn-primary" data-userid="${entryData.userId}">Reporte</button></td>
           `;
         reportsBody.appendChild(row);
       });
@@ -178,6 +270,12 @@ btnReportes.addEventListener("click", async () => {
     reportsListContainer.style.display = "block";
     employeesListContainer.style.display = "none";
     proyectosListContainer.style.display = "none";
+    addProyectForm.style.display = "none";
+    btnMostrarFormulario.style.display = "none";
+    colaboradorListContainer.style.display = "none";
+
+
+
     const existingExportButton = reportsListContainer.querySelector("#exportButton");
     if (existingExportButton) {
       existingExportButton.remove();
@@ -192,7 +290,7 @@ btnReportes.addEventListener("click", async () => {
       exportToExcel(reportsBody);
     });
     
-    reportsListContainer.appendChild(exportButton);
+    reportsListContainer.appendChild(exportButtonHTML);
     
   } catch (error) {
     console.error("Error al cargar la lista de reporte:", error);
@@ -248,6 +346,9 @@ searchEmpleadosInput.addEventListener("input", () => {
   reportsListContainer.style.display = "block"; // Ocultar la tabla de reportes
   permisosListContainer.style.display = "none";
   proyectosListContainer.style.display = "none";
+  addProyectForm.style.display = "none";
+  btnMostrarFormulario.style.display = "none";
+
 
   for (const row of empleadosRows) {
     const nombreCell = row.cells[1].textContent.toLowerCase();
@@ -257,9 +358,9 @@ searchEmpleadosInput.addEventListener("input", () => {
   }
 });
 
-//Boton Empleados
+//Boton Lider
 btnLider.addEventListener("click", async () => {
-  console.log("Clic en Empleados");
+  console.log("Clic en Lideres");
   textoPrincipal.textContent = "Lideres";
   try {
     const db = getFirestore(firebaseApp);
@@ -272,7 +373,6 @@ btnLider.addEventListener("click", async () => {
       const usuarioData = usuarioDoc.data();
       const row = document.createElement("tr");
       row.innerHTML = `
-      <td><img src="${usuarioData.imageUrl}" alt="Imagen de perfil" style="max-width: 50px;"></td>
         <td>${usuarioData.nombre} ${usuarioData.apellidoPaterno} ${usuarioData.apellidoMaterno}</td>
         <td>${usuarioData.rfc}</td>
         <td>${usuarioData.telefono}</td>
@@ -284,6 +384,10 @@ btnLider.addEventListener("click", async () => {
     reportsListContainer.style.display = "none";
     employeesListContainer.style.display = "block";
     proyectosListContainer.style.display = "none";
+    addProyectForm.style.display = "none";
+    btnMostrarFormulario.style.display = "none";
+    colaboradorListContainer.style.display = "none";
+
 
     btnAgregar.style.display = "block"; // Muestra el botón Agregar
 
@@ -342,6 +446,10 @@ btnPermisos.addEventListener("click", async () => {
     permisosListContainer.style.display = "block";
     proyectosListContainer.style.display = "none";
     btnAgregar.style.display = "none";
+    addProyectForm.style.display = "none";
+    btnMostrarFormulario.style.display = "none";
+    colaboradorListContainer.style.display = "none";
+
 
     // Asociar eventos a los botones de aprobación
     const btnsAprobarRH = document.querySelectorAll(".btnAprobarRH");
@@ -424,38 +532,29 @@ btnGuardar.addEventListener("click", async () => {
   const motherLastname = document.getElementById("motherLastName").value;
   const rfc = document.getElementById("rfc").value;
   const phoneNumber = document.getElementById("phoneNumber").value;
-  const imagenFile = document.getElementById("photo").files[0]; // Obtener archivo de imagen
-  const email = document.getElementById("correo").value
-  const password = document("pass").value
-
-
+  const email = document.getElementById("correo").value; // Obtener el email
+  const password = document.getElementById("pass").value; // Obtener la contraseña
 
   try {
     // Crear un nuevo usuario en Firebase Authentication
-    await firebase.auth().createUserWithEmailAndPassword(email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
     const db = getFirestore(firebaseApp);
     const usuariosCollection = collection(db, "lideres");
 
-    // Subir la imagen a Firebase Storage
-    const storage = getStorage(firebaseApp);
-    const storageRef = ref(storage, `images/${imagenFile.name}`);
-    await uploadBytes(storageRef, imagenFile);
-
-    // Obtener la URL de descarga de la imagen subida
-    const imageUrl = await getDownloadURL(storageRef);
-
-    // Agregar el nuevo usuario con la URL de la imagen a Firestore
+    // Agregar el nuevo usuario a Firestore con datos adicionales
     await addDoc(usuariosCollection, {
+      uid: user.uid, // UID del usuario autenticado
+      email: user.email, // Email del usuario autenticado
       nombre: name,
       apellidoPaterno: lastName,
       apellidoMaterno: motherLastname,
       rfc: rfc,
       telefono: phoneNumber,
-      photo: imageUrl
     });
 
-    console.log("Nuevo usuario con imagen agregado con éxito.");
+    console.log("Nuevo usuario registrado y datos agregados con éxito.");
 
     // Cerrar formulario después de guardar y limpiar los campos
     const addUserForm = document.getElementById("add-user-form");
@@ -465,11 +564,11 @@ btnGuardar.addEventListener("click", async () => {
     document.getElementById("motherLastName").value = "";
     document.getElementById("rfc").value = "";
     document.getElementById("phoneNumber").value = "";
-    document.getElementById("photo").value = "";
-    document.getElementById("correo");
+    document.getElementById("correo").value = "";
+    document.getElementById("pass").value = ""; // Limpiar también la contraseña
     await updateTable();
   } catch (error) {
-    console.error("Error al agregar nuevo usuario:", error);
+    console.error("Error al registrar nuevo usuario:", error);
   }
 });
 
@@ -479,16 +578,29 @@ btnCerrar.addEventListener("click", () => {
   addUserForm.style.display = "none";
 
   // Borrar los valores de los campos de texto
-  document.getElementById("nombre").value = "";
-  document.getElementById("area").value = "";
-  document.getElementById("correo").value = "";
+  document.getElementById("name").value = "";
+  document.getElementById("lastname").value = "";
+  document.getElementById("motherLastName").value = "";
+  document.getElementById("rfc").value = "";
+  document.getElementById("phoneNumber").value = "";
 });
 
-// Mostrar el formulario cuando se haga clic en el botón
+
+
+
 const btnMostrarFormulario = document.getElementById("btnMostrarFormulario");
+const btnCerrar2 = document.getElementById("btnCerrar");
+const modalOverlay = document.getElementById("modalOverlay");
+const addProyectForm = document.getElementById("add-proyect-form");
+btnCerrar2.addEventListener("click", () => {
+  modalOverlay.style.display = "none";
+  addProyectForm.style.display = "none";
+});
+// Mostrar el formulario cuando se haga clic en el botón
 btnMostrarFormulario.addEventListener("click", () => {
-    const addProyectForm = document.getElementById("add-proyect-form");
-    addProyectForm.style.display = "block";
+  modalOverlay.style.display = "block";
+  addProyectForm.style.display = "block";
+  
 });
 // Agregar un nuevo proyecto cuando se haga clic en el botón "Guardar"
 const btnGuardar2 = document.getElementById("btnGuardar2");
@@ -522,7 +634,6 @@ btnGuardar2.addEventListener("click", async () => {
 
 
 
-
 btnProyectos.addEventListener("click", async () => {
   console.log("Clic en Proyectos");
   textoPrincipal.textContent = "Proyectos";
@@ -532,38 +643,28 @@ btnProyectos.addEventListener("click", async () => {
     const projectsCollection = collection(db, "projects");
     const projectsSnapshot = await getDocs(projectsCollection);
 
-    const proyectosBody = document.getElementById("proyectos-body");
+    const proyectosListContainer = document.getElementById("proyectos-list");
+    const proyectosTableBody = document.getElementById("proyectos-body");
 
-    // Limpiar el contenedor de proyectos antes de rellenarlo nuevamente
-    proyectosBody.innerHTML = "";
-    const imagePromises = [];
+    // Limpiar el cuerpo de la tabla antes de rellenarlo nuevamente
+    proyectosTableBody.innerHTML = "";
 
     projectsSnapshot.forEach(async (projectDoc) => {
       const projectData = projectDoc.data();
-      const card = document.createElement("div");
-      card.classList.add("card", "square-card");
 
-      const cardBody = document.createElement("div");
-      cardBody.classList.add("card-body");
+      // Crear una fila de la tabla
+      const row = document.createElement("tr");
 
-      const folderImage = document.createElement("img");
-      folderImage.src = "imagenes/motores.jpg"; // Cambia esto por la ruta real de la imagen de tu carpeta
-      folderImage.classList.add("folder-image");
-      folderImage.style.width = "100%";
-      imagePromises.push(new Promise(resolve => {
-        folderImage.onload = resolve;
-        folderImage.onerror = resolve; // También resolvemos si hay un error de carga
-      }));
+      // Crear una celda para el nombre del proyecto
+      const projectNameCell = document.createElement("td");
 
-      const title = document.createElement("h5");
-      title.classList.add("card-title");
-      title.textContent = projectData.nameProject;
+      // Crear un div en lugar de un enlace
+      const projectDiv = document.createElement("div");
+      projectDiv.textContent = projectData.nameProject;
+      projectDiv.style.cursor = "pointer"; // Añadir un estilo de cursor para indicar que es interactivo
 
-      const text = document.createElement("p");
-      text.classList.add("card-text");
-      text.textContent = "Lider: " + projectData.lider;
-      // Añadir un evento de clic al card
-      card.addEventListener("click", async () => {
+      // Añadir un evento de clic al div
+      projectDiv.addEventListener("click", async () => {
         try {
           // Construir una consulta para buscar todas las entradas relacionadas con este proyecto
           const entriesCollection = collection(db, "entries");
@@ -580,17 +681,18 @@ btnProyectos.addEventListener("click", async () => {
             const entryDateTime = entryData.entryTime.toDate();
             const entryDate = entryDateTime.toLocaleDateString();
             const entryTime = entryDateTime.toLocaleTimeString();
+
             // Buscar información del usuario en la colección de usuarios
             const userRef = doc(db, "users", userId);
             const userDoc = await getDoc(userRef);
+
             if (userDoc.exists()) {
               const userData = userDoc.data();
-              console.log("Usuario asignado:", userData);
 
               // Crear una fila de la tabla con los datos del usuario
               var row = document.createElement("tr");
               row.innerHTML = `
-              <td><img src="${userData.photo}" alt="Foto de perfil" style="width: 50px; height: 50px;"></td>
+                <td><img src="${userData.photo}" alt="Foto de perfil" style="width: 50px; height: 50px;"></td>
                 <td>${userData.name} ${userData.lastName} ${userData.motherLastName}</td>
                 <td>${userData.rfc}</td>
                 <td>${userData.phoneNumber}</td>
@@ -612,28 +714,33 @@ btnProyectos.addEventListener("click", async () => {
           console.error("Error al buscar usuarios asignados al proyecto:", error);
         }
       });
-      cardBody.appendChild(folderImage);
 
-      cardBody.appendChild(title);
-      cardBody.appendChild(text);
-      
-      card.appendChild(cardBody);
+      // Agregar el div a la celda
+      projectNameCell.appendChild(projectDiv);
 
-      // Agregar la card al contenedor de cards
-      proyectosBody.appendChild(card);
+      // Agregar la celda a la fila
+      row.appendChild(projectNameCell);
+
+      // Agregar la fila al cuerpo de la tabla
+      proyectosTableBody.appendChild(row);
     });
 
+    // Resto del código para cambiar la visibilidad de otros contenedores
     reportsListContainer.style.display = "none";
     employeesListContainer.style.display = "none";
     proyectosListContainer.style.display = "block";
     permisosListContainer.style.display = "none";
     btnAgregar.style.display = "none";
+    btnMostrarFormulario.style.display = "block";
+    colaboradorListContainer.style.display = "none";
+
 
   } catch (error) {
     console.error("Error al cargar los proyectos:", error);
   }
-  
 });
+
+// ... (Resto del código)
 
 // Obtener el modal
 var modal = document.getElementById("userModal");
@@ -656,6 +763,7 @@ window.onclick = function (event) {
 
 
 
+
 async function updateTable() {
   try {
     const db = getFirestore(firebaseApp);
@@ -668,7 +776,6 @@ async function updateTable() {
       const usuarioData = usuarioDoc.data();
       const row = document.createElement("tr");
       row.innerHTML = `
-              <td><img src="${usuarioData.photo}" alt="Imagen de perfil" style="max-width: 50px;"></td>
               <td>${usuarioData.nombre} ${usuarioData.apellidoPaterno} ${usuarioData.apellidoMaterno}</td>
               <td>${usuarioData.rfc}</td>
               <td>${usuarioData.telefono}</td>
