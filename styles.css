@@ -355,9 +355,32 @@ body {
     border: 2px solid #ccc;
     font-size: 15px;
     margin-right: 100px;
+
   }
   /* Estilos para la barra de búsqueda de reportes */
   #searchReportes {
+    padding: 10px;
+    width: 75%;
+    max-width: 200px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: 30px;
+  }
+  #searchEmpleados {
+    padding: 10px;
+    width: 75%;
+    max-width: 200px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: 30px;
+  }
+  #searchColaborador {
     padding: 10px;
     width: 75%;
     max-width: 200px;
@@ -464,7 +487,9 @@ body {
   .btnAprobarRH:hover {
     background-color: #45a049;
   }
-  
+  #btnAgregar{
+margin-bottom: 10;
+  }
 
 
 

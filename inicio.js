@@ -68,6 +68,23 @@ searchReportesInput.addEventListener("input", () => {
 
 const resultMessage = document.getElementById("resultMessage");
 
+
+
+
+document.getElementById("searchColaborador").addEventListener("input", function () {
+  const searchTerm = this.value.toLowerCase();
+  const colaboradoresTable = document.getElementById("colaboradores-table");
+  const colaboradoresBody = document.getElementById("colaboradores-body");
+  const colaboradoresRows = colaboradoresBody.getElementsByTagName("tr");
+
+  for (const row of colaboradoresRows) {
+      const nombreCell = row.cells[0].textContent.toLowerCase();
+      const rfcCell = row.cells[1].textContent.toLowerCase();
+
+      // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
+      row.style.display = nombreCell.includes(searchTerm) || rfcCell.includes(searchTerm) ? "table-row" : "none";
+  }
+});
 const btnAgregarColaborador = document.getElementById("Agr");
 btnAgregarColaborador.addEventListener("click", () => {
   const addColaboradorForm = document.getElementById("add-colaborador-form");
@@ -75,7 +92,7 @@ btnAgregarColaborador.addEventListener("click", () => {
 });
 
 
-const btnGuardarCol = document.getElementById("btnGuardar");
+const btnGuardarCol = document.getElementById("btnGuardarCol");
 btnGuardarCol.addEventListener("click", async () => {
   const name = document.getElementById("name2").value;
   console.log("Nombre a guardar:", name);
@@ -86,24 +103,26 @@ btnGuardarCol.addEventListener("click", async () => {
   const motherLastname = document.getElementById("motherLastName2").value;
   const rfc = document.getElementById("rfc2").value;
   const phoneNumber = document.getElementById("phoneNumber2").value;
-  const curp = document.getElementById("curp").value; // Obtener el email
-   if (!name || !lastName || !motherLastname ||!rfc) {
+  const curp = document.getElementById("curp").value;
+
+  if (!name || !lastName || !motherLastname || !rfc|| rfc.length !== 13) {
     alert("Por favor, complete los campos obligatorios.");
     return;
-}
-  try {
+  }
 
+  try {
     const db = getFirestore(firebaseApp);
     const usuariosCollection = collection(db, "users");
 
     // Agregar el nuevo usuario a Firestore con datos adicionales
     await addDoc(usuariosCollection, {
-      id: user.id, // UID del usuario autenticado
-      nombre: name,
-      apellidoPaterno: lastName,
-      apellidoMaterno: motherLastname,
+      name: name,
+      lastName: lastName,
+      motherLastName: motherLastname,
       rfc: rfc,
-      telefono: phoneNumber,
+      curp: curp,
+      phoneNumber: phoneNumber,
+      status: "Disponible", // Agregar la variable status con el valor "Disponible"
     });
 
     console.log("Nuevo usuario registrado y datos agregados con éxito.");
@@ -115,12 +134,14 @@ btnGuardarCol.addEventListener("click", async () => {
     document.getElementById("lastname2").value = "";
     document.getElementById("motherLastName2").value = "";
     document.getElementById("rfc2").value = "";
+    document.getElementById("curp").value = "";
     document.getElementById("phoneNumber2").value = "";
     await updateTable();
   } catch (error) {
     console.error("Error al registrar nuevo usuario:", error);
   }
 });
+
 
 const btnCerrarCol = document.getElementById("btnCerrarCol");
 btnCerrarCol.addEventListener("click", () => {
@@ -164,14 +185,33 @@ btnColaborador.addEventListener("click", async () => {
       const curp = userData.curp || "CURP no encontrado";
       const paterno = userData.lastName || "Apellido no encontrado";
       const materno = userData.motherLastName || "Apellido no encontrado";
+      const status = userData.status || "Status indefinido";
+      const userId = userDoc.id;
+
 
       // Resto de tu lógica para mostrar la información del usuario
       const row = document.createElement("tr");
+      const qrContainer = document.createElement("td"); // Nuevo td para contener el código QR
+  // Generar código QR
+  const qr = new QRCode(qrContainer, {
+    text: userId,
+    width: 50,
+    height: 50
+  });
+
+  // Agregar evento de clic al código QR
+  qrContainer.addEventListener("click", () => {
+    // Mostrar modal
+    showModal(userId);
+  });
+  
       row.innerHTML = `
         <td>${name} ${paterno} ${materno}</td>
         <td>${rfc}</td>
-        <td>${'Disponible'}</td>
+        <td>${status}</td>
       `;
+      row.appendChild(qrContainer);
+  
       colaborBody.appendChild(row);
     });
 
@@ -192,6 +232,50 @@ btnColaborador.addEventListener("click", async () => {
 });
 
 
+function showModal(userId) {
+  const modal = document.getElementById("qrModal");
+  const largeQR = document.getElementById("largeQR");
+  const downloadButton = document.getElementById("downloadButton");
+
+  // Limpiar cualquier contenido previo en el modal
+  largeQR.innerHTML = '';
+
+  try {
+    console.log("Creando nuevo código QR");
+    // Crear un nuevo código QR
+    const qr = new QRCode(largeQR, {
+      text: userId,
+      width: 200,
+      height: 200
+    });
+
+    console.log("Mostrando el código QR en el modal");
+
+    // Crear una nueva imagen con el código QR y agregarla al modal
+    const qrImage = new Image();
+    qrImage.src = qr._el.childNodes[0].toDataURL("image/png"); // Convertir a formato base64
+    largeQR.appendChild(qrImage);
+  } catch (error) {
+    console.error("Error al crear y mostrar el código QR:", error);
+  }
+
+  modal.style.display = "block";
+
+  console.log("Agregando evento de clic al botón de descarga");
+  // Agregar evento de clic al botón de descarga
+  downloadButton.addEventListener("click", () => {
+    console.log("Descargando código QR");
+
+    // Obtener la imagen del código QR en formato base64
+    const qrImageData = largeQR.querySelector("img").src.split(",")[1];
+
+    // Configurar enlace de descarga
+    const downloadLink = document.createElement("a");
+    downloadLink.href = `data:image/png;base64,${qrImageData}`;
+    downloadLink.download = "qrCode.png";
+    downloadLink.click();
+  });
+}
 
 
 
@@ -200,6 +284,13 @@ btnColaborador.addEventListener("click", async () => {
 
 
 
+
+
+// Función para cerrar el modal
+function closeModal() {
+  const modal = document.getElementById("qrModal");
+  modal.style.display = "none";
+}
 
 
 
@@ -401,26 +492,18 @@ btnBorrarEntries.addEventListener("click", async () => {
 
 
 
-searchEmpleadosInput.addEventListener("input", () => {
-  const searchTerm = searchEmpleadosInput.value.toLowerCase();
-  const empleadosRows = reportsBody.getElementsByTagName("tr");
+document.getElementById("searchEmpleados").addEventListener("input", function () {
+  const searchTerm = this.value.toLowerCase();
+  const colaboradoresTable = document.getElementById("employees-table");
+  const colaboradoresBody = document.getElementById("employees-body");
+  const colaboradoresRows = colaboradoresBody.getElementsByTagName("tr");
 
+  for (const row of colaboradoresRows) {
+      const nombreCell = row.cells[0].textContent.toLowerCase();
+      const rfcCell = row.cells[1].textContent.toLowerCase();
 
-  searchEmpleadosInput.style.display = "block"; // Mostrar la barra de búsqueda de empleados
-  searchReportesInput.style.display = "none"; // Ocultar la barra de búsqueda de reportes
-  employeesListContainer.style.display = "block"; // Mostrar la tabla de empleados
-  reportsListContainer.style.display = "block"; // Ocultar la tabla de reportes
-  permisosListContainer.style.display = "none";
-  proyectosListContainer.style.display = "none";
-  addProyectForm.style.display = "none";
-  btnMostrarFormulario.style.display = "none";
-
-
-  for (const row of empleadosRows) {
-    const nombreCell = row.cells[1].textContent.toLowerCase();
-    const areaCell = row.cells[2].textContent.toLowerCase();
-    const correoCell = row.cells[3].textContent.toLowerCase();
-    row.style.display = nombreCell.includes(searchTerm) || areaCell.includes(searchTerm) || correoCell.includes(searchTerm) ? "table-row" : "none";
+      // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
+      row.style.display = nombreCell.includes(searchTerm) || rfcCell.includes(searchTerm) ? "table-row" : "none";
   }
 });
 
@@ -461,6 +544,8 @@ btnLider.addEventListener("click", async () => {
     console.error("Error al cargar la lista de empleados:", error);
   }
 });
+
+
 //Boton permisos
 btnPermisos.addEventListener("click", async () => {
   console.log("Clic en Permisos");
@@ -584,67 +669,84 @@ async function updatePermisoStatusRH(permisoId) {
 
 
 
-// Agregar empleado
 btnAgregar.addEventListener("click", () => {
   const addUserForm = document.getElementById("add-user-form");
   addUserForm.style.display = "block";
 });
 // ...
-
 const btnGuardar = document.getElementById("btnGuardar");
 btnGuardar.addEventListener("click", async () => {
-  const name = document.getElementById("nom").value;
-  console.log("Nombre a guardar:", name);
+    const name = document.getElementById("nom").value;
+    console.log("Nombre a guardar:", name);
 
-  const lastName = document.getElementById("lastname").value;
-  console.log("lastName a guardar:", lastName);
+    const lastName = document.getElementById("lastname").value;
+    console.log("lastName a guardar:", lastName);
 
-  const motherLastname = document.getElementById("motherLastName").value;
-  const rfc = document.getElementById("rfc").value;
-  const phoneNumber = document.getElementById("phoneNumber").value;
-  const email = document.getElementById("correo").value; // Obtener el email
-  const password = document.getElementById("pass").value; // Obtener la contraseña
-   // Verificar si algún campo obligatorio está vacío
-   if (!name || !lastName || !email || !password) {
-    alert("Por favor, complete todos los campos obligatorios.");
-    return;
-}
-  try {
-    // Crear un nuevo usuario en Firebase Authentication
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    const motherLastname = document.getElementById("motherLastName").value;
+    const rfc = document.getElementById("rfc").value;
+    const phoneNumber = document.getElementById("phoneNumber").value;
+    const email = document.getElementById("correo").value;
+    const password = document.getElementById("pass").value;
 
-    const db = getFirestore(firebaseApp);
-    const usuariosCollection = collection(db, "lideres");
+    if (!name || !lastName || !email || !password) {
+        alert("Por favor, complete todos los campos obligatorios.");
+        return;
+    }
 
-    // Agregar el nuevo usuario a Firestore con datos adicionales
-    await addDoc(usuariosCollection, {
-      uid: user.uid, // UID del usuario autenticado
-      email: user.email, // Email del usuario autenticado
-      nombre: name,
-      apellidoPaterno: lastName,
-      apellidoMaterno: motherLastname,
-      rfc: rfc,
-      telefono: phoneNumber,
-    });
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-    console.log("Nuevo usuario registrado y datos agregados con éxito.");
+        const db = getFirestore(firebaseApp);
+        const usuariosCollection = collection(db, "lideres");
 
-    // Cerrar formulario después de guardar y limpiar los campos
-    const addUserForm = document.getElementById("add-user-form");
-    addUserForm.style.display = "none";
-    document.getElementById("name").value = "";
-    document.getElementById("lastname").value = "";
-    document.getElementById("motherLastName").value = "";
-    document.getElementById("rfc").value = "";
-    document.getElementById("phoneNumber").value = "";
-    document.getElementById("correo").value = "";
-    document.getElementById("pass").value = ""; // Limpiar también la contraseña
-    await updateTable();
-  } catch (error) {
-    console.error("Error al registrar nuevo usuario:", error);
-  }
+        await addDoc(usuariosCollection, {
+            uid: user.uid,
+            email: user.email,
+            nombre: name,
+            apellidoPaterno: lastName,
+            apellidoMaterno: motherLastname,
+            rfc: rfc,
+            telefono: phoneNumber,
+            status: "Activo", // Agrega el campo "status" con el valor "Activo" o el que desees
+        });
+
+        console.log("Nuevo usuario registrado y datos agregados con éxito.");
+
+        if (user.emailVerified) {
+            console.log("El correo electrónico ya está verificado.");
+        } else {
+            await sendEmailVerification(user);
+            console.log("Correo de verificación enviado con éxito.");
+        }
+
+        const addUserForm = document.getElementById("add-user-form");
+        addUserForm.style.display = "none";
+        document.getElementById("name").value = "";
+        document.getElementById("lastname").value = "";
+        document.getElementById("motherLastName").value = "";
+        document.getElementById("rfc").value = "";
+        document.getElementById("phoneNumber").value = "";
+        document.getElementById("correo").value = "";
+        document.getElementById("pass").value = "";
+
+        await updateTable();
+    } catch (error) {
+        console.error("Error al registrar nuevo usuario:", error);
+    }
 });
+
+
+async function sendEmailVerification(user) {
+  try {
+    await sendEmailVerification(user.auth);
+    console.log("Correo de verificación enviado con éxito.");
+  } catch (error) {
+    console.error("Error al enviar el correo de verificación:", error);
+  }
+}
+
+
 
 const btnCerrar = document.getElementById("btnCerrar");
 btnCerrar.addEventListener("click", () => {
@@ -670,7 +772,6 @@ btnCerrar2.addEventListener("click", () => {
   modalOverlay.style.display = "none";
   addProyectForm.style.display = "none";
 });
-// Mostrar el formulario cuando se haga clic en el botón
 btnMostrarFormulario.addEventListener("click", () => {
   modalOverlay.style.display = "block";
   addProyectForm.style.display = "block";
@@ -681,6 +782,7 @@ btnMostrarFormulario.addEventListener("click", () => {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
+    
     // Obtener una referencia a la base de datos de Firebase
     const db = getFirestore(firebaseApp);
 
@@ -799,14 +901,47 @@ btnBorrarProyectos.addEventListener("click", async () => {
 });
 
 
+const btnBorrar = document.getElementById("btnBorrar");
+btnBorrar.addEventListener("click", async () => {
+  try {
+    // Obtener una referencia a la base de datos de Firebase
+    const db = getFirestore(firebaseApp);
+
+    // Obtener la referencia de la colección "projects"
+    const projectsCollection = collection(db, "lideres");
+
+    // Obtener todos los documentos en la colección "projects"
+    const projectsSnapshot = await getDocs(projectsCollection);
+
+    // Borrar cada proyecto
+    projectsSnapshot.forEach(async (doc) => {
+      await deleteDoc(doc.ref);
+    });
+
+    console.log("Todos los proyectos han sido eliminados correctamente.");
+  } catch (error) {
+    console.error("Error al borrar proyectos:", error);
+  }
+});
 
 
 
 
 
 
+document.getElementById("searchP").addEventListener("input", function () {
+  const searchTerm = this.value.toLowerCase();
+  const colaboradoresTable = document.getElementById("proyectos-table");
+  const colaboradoresBody = document.getElementById("proyectos-body");
+  const colaboradoresRows = colaboradoresBody.getElementsByTagName("tr");
 
+  for (const row of colaboradoresRows) {
+      const nombreCell = row.cells[0].textContent.toLowerCase();
 
+      // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
+      row.style.display = nombreCell.includes(searchTerm) ? "table-row" : "none";
+    }
+});
 
 btnProyectos.addEventListener("click", async () => {
   console.log("Clic en Proyectos");
