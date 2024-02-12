@@ -68,7 +68,73 @@ searchReportesInput.addEventListener("input", () => {
 
 const resultMessage = document.getElementById("resultMessage");
 
+const btnAgregarColaborador = document.getElementById("Agr");
+btnAgregarColaborador.addEventListener("click", () => {
+  const addColaboradorForm = document.getElementById("add-colaborador-form");
+  addColaboradorForm.style.display = "block";
+});
 
+
+const btnGuardarCol = document.getElementById("btnGuardar");
+btnGuardarCol.addEventListener("click", async () => {
+  const name = document.getElementById("name2").value;
+  console.log("Nombre a guardar:", name);
+
+  const lastName = document.getElementById("lastname2").value;
+  console.log("lastName a guardar:", lastName);
+
+  const motherLastname = document.getElementById("motherLastName2").value;
+  const rfc = document.getElementById("rfc2").value;
+  const phoneNumber = document.getElementById("phoneNumber2").value;
+  const curp = document.getElementById("curp").value; // Obtener el email
+   if (!name || !lastName || !motherLastname ||!rfc) {
+    alert("Por favor, complete los campos obligatorios.");
+    return;
+}
+  try {
+
+    const db = getFirestore(firebaseApp);
+    const usuariosCollection = collection(db, "users");
+
+    // Agregar el nuevo usuario a Firestore con datos adicionales
+    await addDoc(usuariosCollection, {
+      id: user.id, // UID del usuario autenticado
+      nombre: name,
+      apellidoPaterno: lastName,
+      apellidoMaterno: motherLastname,
+      rfc: rfc,
+      telefono: phoneNumber,
+    });
+
+    console.log("Nuevo usuario registrado y datos agregados con éxito.");
+
+    // Cerrar formulario después de guardar y limpiar los campos
+    const addUserForm = document.getElementById("add-colaborador-form");
+    addUserForm.style.display = "none";
+    document.getElementById("name2").value = "";
+    document.getElementById("lastname2").value = "";
+    document.getElementById("motherLastName2").value = "";
+    document.getElementById("rfc2").value = "";
+    document.getElementById("phoneNumber2").value = "";
+    await updateTable();
+  } catch (error) {
+    console.error("Error al registrar nuevo usuario:", error);
+  }
+});
+
+const btnCerrarCol = document.getElementById("btnCerrarCol");
+btnCerrarCol.addEventListener("click", () => {
+  const addUserForm = document.getElementById("add-colaborador-form");
+  addUserForm.style.display = "none";
+
+  // Borrar los valores de los campos de texto
+  document.getElementById("name2").value = "";
+  document.getElementById("lastname2").value = "";
+  document.getElementById("motherLastName2").value = "";
+  document.getElementById("rfc2").value = "";
+  document.getElementById("curp").value = "";
+  document.getElementById("phoneNumber2").value = "";
+});
 
 
 btnColaborador.addEventListener("click", async () => {
@@ -104,7 +170,7 @@ btnColaborador.addEventListener("click", async () => {
       row.innerHTML = `
         <td>${name} ${paterno} ${materno}</td>
         <td>${rfc}</td>
-        <td>${'undefined'}</td>
+        <td>${'Disponible'}</td>
       `;
       colaborBody.appendChild(row);
     });
@@ -527,14 +593,22 @@ btnAgregar.addEventListener("click", () => {
 
 const btnGuardar = document.getElementById("btnGuardar");
 btnGuardar.addEventListener("click", async () => {
-  const name = document.getElementById("name").value;
+  const name = document.getElementById("nom").value;
+  console.log("Nombre a guardar:", name);
+
   const lastName = document.getElementById("lastname").value;
+  console.log("lastName a guardar:", lastName);
+
   const motherLastname = document.getElementById("motherLastName").value;
   const rfc = document.getElementById("rfc").value;
   const phoneNumber = document.getElementById("phoneNumber").value;
   const email = document.getElementById("correo").value; // Obtener el email
   const password = document.getElementById("pass").value; // Obtener la contraseña
-
+   // Verificar si algún campo obligatorio está vacío
+   if (!name || !lastName || !email || !password) {
+    alert("Por favor, complete todos los campos obligatorios.");
+    return;
+}
   try {
     // Crear un nuevo usuario en Firebase Authentication
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -578,7 +652,7 @@ btnCerrar.addEventListener("click", () => {
   addUserForm.style.display = "none";
 
   // Borrar los valores de los campos de texto
-  document.getElementById("name").value = "";
+  document.getElementById("nom").value = "";
   document.getElementById("lastname").value = "";
   document.getElementById("motherLastName").value = "";
   document.getElementById("rfc").value = "";
@@ -589,7 +663,7 @@ btnCerrar.addEventListener("click", () => {
 
 
 const btnMostrarFormulario = document.getElementById("btnMostrarFormulario");
-const btnCerrar2 = document.getElementById("btnCerrar");
+const btnCerrar2 = document.getElementById("btnCerrar2");
 const modalOverlay = document.getElementById("modalOverlay");
 const addProyectForm = document.getElementById("add-proyect-form");
 btnCerrar2.addEventListener("click", () => {
@@ -602,33 +676,133 @@ btnMostrarFormulario.addEventListener("click", () => {
   addProyectForm.style.display = "block";
   
 });
-// Agregar un nuevo proyecto cuando se haga clic en el botón "Guardar"
-const btnGuardar2 = document.getElementById("btnGuardar2");
-btnGuardar2.addEventListener("click", async () => {
-    const nombreProyecto = document.getElementById("name").value;
-    const liderProyecto = document.getElementById("lider").value;
-    const clienteProyecto = document.getElementById("cliente").value;
 
-    try {
-        // Obtener una referencia a la base de datos de Firebase
-        const db = getFirestore(firebaseApp);
 
-        // Guardar los datos del proyecto en la colección "projects"
-        await addDoc(collection(db, "projects"), {
-            nameProject: nombreProyecto,
-            lider: liderProyecto,
-            cliente: clienteProyecto
-        });
 
-        // Después de guardar el proyecto, puedes limpiar el formulario o cerrarlo
-        const addProyectForm = document.getElementById("add-proyect-form");
-        addProyectForm.style.display = "none";
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    // Obtener una referencia a la base de datos de Firebase
+    const db = getFirestore(firebaseApp);
 
-        // También puedes recargar la lista de proyectos para mostrar el nuevo proyecto agregado
-    } catch (error) {
-        console.error("Error al guardar el proyecto:", error);
+    // Obtener la lista de líderes desde la base de datos
+    const leadersCollection = collection(db, "lideres");
+    const leadersSnapshot = await getDocs(leadersCollection);
+
+    const liderSelect = document.getElementById("lider2");
+    liderSelect.innerHTML = ""; // Limpiar opciones existentes
+
+    // Agregar la opción predeterminada
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.text = "Seleccione líder";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    liderSelect.appendChild(defaultOption);
+
+    // Verificar si hay líderes disponibles
+    if (!leadersSnapshot.empty) {
+      const leaders = leadersSnapshot.docs.map(doc => {
+        const leaderData = doc.data();
+        // Agregar el ID del líder al objeto y devolverlo
+        return { id: doc.id, ...leaderData };
+      });
+
+      // Log para verificar si se obtienen los líderes correctamente
+      console.log("Líderes obtenidos:", leaders);
+
+      // Actualizar el contenido del elemento <select> con la lista de líderes
+      leaders.forEach(leader => {
+        const option = document.createElement("option");
+        option.value = leader.id; // Utilizar el ID como valor único
+        option.text = leader.nombre;
+        liderSelect.appendChild(option);
+      });
+    } else {
+      console.log("No hay líderes disponibles.");
     }
+  } catch (error) {
+    console.error("Error al obtener la lista de líderes:", error);
+  }
+
+  const btnGuardar2 = document.getElementById("btnGuardar2");
+  btnGuardar2.addEventListener("click", async () => {
+      const nombreProyecto = document.getElementById("name").value;
+      const clienteProyecto = document.getElementById("cliente").value;
+  
+      // Obtener el valor seleccionado en el campo <select> de líder (que debería ser el ID)
+      const liderSelect = document.getElementById("lider2");
+      const idLiderSeleccionado = liderSelect.value;
+    
+      if (nombreProyecto.trim() === "" || liderSelect.value === "" || clienteProyecto.trim() === "") {
+          alert("Por favor, complete todos los campos.");
+          return false;
+      }
+  
+      try {
+          // Obtener una referencia a la base de datos de Firebase
+          const db = getFirestore(firebaseApp);
+    
+          // Guardar los datos del proyecto en la colección "projects"
+          await addDoc(collection(db, "projects"), {
+              nameProject: nombreProyecto,
+              lider: idLiderSeleccionado, // Utilizar el ID del líder seleccionado
+              cliente: clienteProyecto,
+              status: "Activo"
+          });
+  
+          // Después de guardar el proyecto, puedes limpiar el formulario o cerrarlo
+          const addProyectForm = document.getElementById("add-proyect-form");
+          addProyectForm.style.display = "none";
+          modalOverlay.style.display = "none";
+
+          // Limpiar los campos del formulario
+          document.getElementById("name").value = "";
+          document.getElementById("lider2").value = "";
+          document.getElementById("cliente").value = "";
+  
+          // Ocultar el formulario (cerrar el modal)
+  
+          // Actualizar la tabla después de guardar
+          await updateTableProyect();
+      } catch (error) {
+          console.error("Error al guardar el proyecto:", error);
+      }
+  });
+  
+  
 });
+
+
+
+
+const btnBorrarProyectos = document.getElementById("btnBorrarProyectos");
+btnBorrarProyectos.addEventListener("click", async () => {
+  try {
+    // Obtener una referencia a la base de datos de Firebase
+    const db = getFirestore(firebaseApp);
+
+    // Obtener la referencia de la colección "projects"
+    const projectsCollection = collection(db, "projects");
+
+    // Obtener todos los documentos en la colección "projects"
+    const projectsSnapshot = await getDocs(projectsCollection);
+
+    // Borrar cada proyecto
+    projectsSnapshot.forEach(async (doc) => {
+      await deleteDoc(doc.ref);
+    });
+
+    console.log("Todos los proyectos han sido eliminados correctamente.");
+  } catch (error) {
+    console.error("Error al borrar proyectos:", error);
+  }
+});
+
+
+
+
+
+
 
 
 
@@ -639,108 +813,112 @@ btnProyectos.addEventListener("click", async () => {
   textoPrincipal.textContent = "Proyectos";
 
   try {
-    const db = getFirestore(firebaseApp);
-    const projectsCollection = collection(db, "projects");
-    const projectsSnapshot = await getDocs(projectsCollection);
+      const db = getFirestore(firebaseApp);
+      const projectsCollection = collection(db, "projects");
+      const projectsSnapshot = await getDocs(projectsCollection);
 
-    const proyectosListContainer = document.getElementById("proyectos-list");
-    const proyectosTableBody = document.getElementById("proyectos-body");
+      const proyectosListContainer = document.getElementById("proyectos-list");
+      const proyectosTableBody = document.getElementById("proyectos-body");
+      const statusFilter = document.getElementById("statusFilter").value;
 
-    // Limpiar el cuerpo de la tabla antes de rellenarlo nuevamente
-    proyectosTableBody.innerHTML = "";
+      // Limpiar el cuerpo de la tabla antes de rellenarlo nuevamente
+      proyectosTableBody.innerHTML = "";
 
-    projectsSnapshot.forEach(async (projectDoc) => {
-      const projectData = projectDoc.data();
+      projectsSnapshot.forEach(async (projectDoc) => {
+          const projectData = projectDoc.data();
+          if (statusFilter === "todos" || projectData.status === statusFilter) {
 
-      // Crear una fila de la tabla
-      const row = document.createElement("tr");
+          // Crear una fila de la tabla
+          const row = document.createElement("tr");
 
-      // Crear una celda para el nombre del proyecto
-      const projectNameCell = document.createElement("td");
+          // Crear una celda para el nombre del proyecto
+          const projectNameCell = document.createElement("td");
 
-      // Crear un div en lugar de un enlace
-      const projectDiv = document.createElement("div");
-      projectDiv.textContent = projectData.nameProject;
-      projectDiv.style.cursor = "pointer"; // Añadir un estilo de cursor para indicar que es interactivo
+          // Crear un div en lugar de un enlace
+          const projectDiv = document.createElement("div");
+          projectDiv.textContent = projectData.nameProject;
+          projectDiv.style.cursor = "pointer"; // Añadir un estilo de cursor para indicar que es interactivo
 
-      // Añadir un evento de clic al div
-      projectDiv.addEventListener("click", async () => {
-        try {
-          // Construir una consulta para buscar todas las entradas relacionadas con este proyecto
-          const entriesCollection = collection(db, "entries");
-          const entriesQuery = query(entriesCollection, where("projectId", "==", projectDoc.id));
-          const entriesSnapshot = await getDocs(entriesQuery);
+          // Añadir un evento de clic al div
+          projectDiv.addEventListener("click", async () => {
+              try {
+                  // Construir una consulta para buscar todas las entradas relacionadas con este proyecto
+                  const entriesCollection = collection(db, "entries");
+                  const entriesQuery = query(entriesCollection, where("projectId", "==", projectDoc.id));
+                  const entriesSnapshot = await getDocs(entriesQuery);
 
-          // Limpiar el contenido de la tabla dentro del modal
-          document.getElementById("userInfoBody").innerHTML = "";
+                  // Limpiar el contenido de la tabla dentro del modal
+                  document.getElementById("userInfoBody").innerHTML = "";
 
-          // Mostrar información de los usuarios asignados al proyecto en una tabla dentro del modal
-          entriesSnapshot.forEach(async (entryDoc) => {
-            const entryData = entryDoc.data();
-            const userId = entryData.userId;
-            const entryDateTime = entryData.entryTime.toDate();
-            const entryDate = entryDateTime.toLocaleDateString();
-            const entryTime = entryDateTime.toLocaleTimeString();
+                  // Mostrar información de los usuarios asignados al proyecto en una tabla dentro del modal
+                  entriesSnapshot.forEach(async (entryDoc) => {
+                      const entryData = entryDoc.data();
+                      const userId = entryData.userId;
+                      const entryDateTime = entryData.entryTime.toDate();
+                      const entryDate = entryDateTime.toLocaleDateString();
+                      const entryTime = entryDateTime.toLocaleTimeString();
 
-            // Buscar información del usuario en la colección de usuarios
-            const userRef = doc(db, "users", userId);
-            const userDoc = await getDoc(userRef);
+                      // Buscar información del usuario en la colección de usuarios
+                      const userRef = doc(db, "users", userId);
+                      const userDoc = await getDoc(userRef);
 
-            if (userDoc.exists()) {
-              const userData = userDoc.data();
+                      if (userDoc.exists()) {
+                          const userData = userDoc.data();
 
-              // Crear una fila de la tabla con los datos del usuario
-              var row = document.createElement("tr");
-              row.innerHTML = `
-                <td><img src="${userData.photo}" alt="Foto de perfil" style="width: 50px; height: 50px;"></td>
-                <td>${userData.name} ${userData.lastName} ${userData.motherLastName}</td>
-                <td>${userData.rfc}</td>
-                <td>${userData.phoneNumber}</td>
-                <td>${entryDate}</td>
-                <td>${entryTime}</td>
-                <!-- Agrega más celdas según sea necesario -->
-              `;
+                          // Crear una fila de la tabla con los datos del usuario
+                          var row = document.createElement("tr");
+                          row.innerHTML = `
+                              <td><img src="${userData.photo}" alt="Foto de perfil" style="width: 50px; height: 50px;"></td>
+                              <td>${userData.name} ${userData.lastName} ${userData.motherLastName}</td>
+                              <td>${userData.rfc}</td>
+                              <td>${userData.phoneNumber}</td>
+                              <td>${entryDate}</td>
+                              <td>${entryTime}</td>
+                              <!-- Agrega más celdas según sea necesario -->
+                          `;
 
-              // Agregar la fila a la tabla dentro del modal
-              document.getElementById("userInfoBody").appendChild(row);
-            } else {
-              console.log("Usuario no encontrado");
-            }
+                          // Agregar la fila a la tabla dentro del modal
+                          document.getElementById("userInfoBody").appendChild(row);
+                      } else {
+                          console.log("Usuario no encontrado");
+                      }
+                  });
+
+                  // Mostrar el modal
+                  modal.style.display = "block";
+              } catch (error) {
+                  console.error("Error al buscar usuarios asignados al proyecto:", error);
+              }
           });
 
-          // Mostrar el modal
-          modal.style.display = "block";
-        } catch (error) {
-          console.error("Error al buscar usuarios asignados al proyecto:", error);
+          // Agregar el div a la celda
+          projectNameCell.appendChild(projectDiv);
+
+          // Agregar la celda a la fila
+          row.appendChild(projectNameCell);
+
+          const statusCell = document.createElement("td");
+          statusCell.textContent = projectData.status || "Sin especificar";
+          row.appendChild(statusCell);
+
+          // Agregar la fila al cuerpo de la tabla
+          proyectosTableBody.appendChild(row);
         }
       });
 
-      // Agregar el div a la celda
-      projectNameCell.appendChild(projectDiv);
-
-      // Agregar la celda a la fila
-      row.appendChild(projectNameCell);
-
-      // Agregar la fila al cuerpo de la tabla
-      proyectosTableBody.appendChild(row);
-    });
-
-    // Resto del código para cambiar la visibilidad de otros contenedores
-    reportsListContainer.style.display = "none";
-    employeesListContainer.style.display = "none";
-    proyectosListContainer.style.display = "block";
-    permisosListContainer.style.display = "none";
-    btnAgregar.style.display = "none";
-    btnMostrarFormulario.style.display = "block";
-    colaboradorListContainer.style.display = "none";
-
+      // Resto del código para cambiar la visibilidad de otros contenedores
+      reportsListContainer.style.display = "none";
+      employeesListContainer.style.display = "none";
+      proyectosListContainer.style.display = "block";
+      permisosListContainer.style.display = "none";
+      btnAgregar.style.display = "none";
+      btnMostrarFormulario.style.display = "block";
+      colaboradorListContainer.style.display = "none";
 
   } catch (error) {
-    console.error("Error al cargar los proyectos:", error);
+      console.error("Error al cargar los proyectos:", error);
   }
 });
-
-// ... (Resto del código)
 
 // Obtener el modal
 var modal = document.getElementById("userModal");
@@ -782,6 +960,33 @@ async function updateTable() {
                   <td>${usuarioData.correo}</td>
               `;
       employeesBody.appendChild(row);
+    });
+
+    console.log("Tabla actualizada con éxito.");
+  } catch (error) {
+    console.error("Error al actualizar la tabla:", error);
+  }
+}
+
+
+async function updateTableProyect() {
+  try {
+    const db = getFirestore(firebaseApp);
+    const projectsCollection = collection(db, "projects");
+    const projectSnapshot = await getDocs(projectsCollection);
+    const proyectosBody = document.getElementById("proyectos-body");
+
+    proyectosBody.innerHTML = "";
+
+    projectSnapshot.forEach((projectDoc) => {
+      const projectData = projectDoc.data();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+              <td>${projectData.nameProject}</td>
+              <td>${projectData.status}</td>
+
+              `;
+              proyectosBody.appendChild(row);
     });
 
     console.log("Tabla actualizada con éxito.");

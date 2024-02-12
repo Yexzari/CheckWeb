@@ -111,9 +111,10 @@ body {
 #btnMostrarFormulario {
   position: relative;
   margin-top: 20px; /* Espacio entre la tabla y el botón */
-  margin-right: 100px;
+  margin-right: 50px;
   background-color: #242c5c;
   color: white;
+  border-radius: 30px;
   padding: 10px 20px;
   border: none;
   cursor: pointer;
@@ -123,7 +124,18 @@ body {
 .add-button[style*="display: block"] {
     display: block !important;
 }
-
+#add-colaborador-form {
+  display: none;
+  background-color: #f2f2f2;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 50%; /* Centrar verticalmente */
+  left: 50%; /* Centrar horizontalmente */
+  transform: translate(-50%, -50%);
+  z-index: 1000; /* Asegurarse de que esté en la parte superior */
+}
 /* Estilos para el formulario de agregar */
 #add-user-form {
     display: none;
@@ -202,7 +214,13 @@ body {
   border: 1px solid #ddd;
   border-radius: 5px;
 }
-
+#add-colaborador-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
 
 /* Estilos para el botón Guardar del formulario */
 #btnGuardar {
@@ -214,6 +232,15 @@ body {
     cursor: pointer;
     float: right;
 }
+#btnGuardarCol {
+  background-color: #242c5c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  float: right;
+}
 #btnGuardar2 {
   background-color: #242c5c;
   color: white;
@@ -222,6 +249,7 @@ body {
   border: none;
   cursor: pointer;
   float: right;
+  margin-right: 10px;
 }
 #btnCerrar {
     background-color: red;
@@ -232,7 +260,25 @@ body {
     cursor: pointer;
     float: right;
 }
-
+#btnCerrarCol {
+  background-color: red;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  float: right;
+}
+#btnCerrar2 {
+  background-color: red;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  float: right;
+  margin-right: 10px;
+}
 /* Mostrar el formulario solo cuando esté visible */
 #add-user-form[style*="display: block"] {
     display: block !important;
@@ -241,7 +287,9 @@ body {
 #add-proyect-form[style*="display: block"] {
   display: block !important;
 }
-
+#add-colaborador-form[style*="display: block"] {
+  display: block !important;
+}
 
 /* Estilos para la tabla de Reportes */
 .reports-list {
@@ -273,37 +321,90 @@ body {
 #reports-table tr:hover {
     background-color: #ddd;
 }
-
+/* Estilos para el botón Agregar */
+#Agr {
+  position: relative;
+  margin-top: 20px; /* Espacio entre la tabla y el botón */
+  margin-right: 50px;
+  background-color: #242c5c;
+  color: white;
+  border-radius: 30px;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  float: right; /* Alineación a la derecha */
+}
 /* Estilos para la barra de búsqueda de empleados */
-#searchEmpleados {
+#searchLiderw {
+  padding: 10px;
+  width: 75%;
+  max-width: 200px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  font-size: 15px;
+  display: block;
+  margin-left: auto;
+  margin-right: 50px;
+  }
+  #statusFilterLider {
     margin-top: 10px; /* Cambiar el margen superior a 100px */
     margin-bottom: 10px;
     padding: 10px;
     width: 75%;
-    max-width: 200px;
+    max-width: 150px;
     border: 2px solid #ccc;
-    border-radius: 30px;
     font-size: 15px;
-    display: block;
-    margin-left: 50px;
-    margin-right: auto;
+    margin-right: 100px;
   }
-  
   /* Estilos para la barra de búsqueda de reportes */
   #searchReportes {
-    margin-top: 10px; /* Cambiar el margen superior a 100px */
-    margin-bottom: 10px;
     padding: 10px;
     width: 75%;
     max-width: 200px;
     border: 2px solid #ccc;
-    border-radius: 30px;
+    border-radius: 10px;
     font-size: 15px;
     display: block;
     margin-left: auto;
+    margin-right: 30px;
+  }
+  /* Estilos para la barra de búsqueda de reportes */
+  #statusFilterReport {
+    margin-top: 10px; /* Cambiar el margen superior a 100px */
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 75%;
+    max-width: 150px;
+    border: 2px solid #ccc;
+    font-size: 15px;
     margin-right: 50px;
   }
-
+  .filter-container {
+    display: flex;
+    justify-content: space-between; /* Alinea los elementos alrededor del espacio disponible */
+    align-items: center;
+}
+  #searchP {
+    padding: 10px;
+    width: 75%;
+    max-width: 200px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    font-size: 15px;
+    margin-left: auto;
+    margin-right: 20px;
+  }
+  /* Estilos para la barra de búsqueda de reportes */
+  #statusFilter {
+    margin-top: 10px; /* Cambiar el margen superior a 100px */
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 75%;
+    max-width: 150px;
+    border: 2px solid #ccc;
+    font-size: 15px;
+    margin-right: 50px;
+  }
 
   /* Estilos para los elementos de entrada de fecha */
 .date-filters {
@@ -516,4 +617,8 @@ body {
   #exportButton {
     display: flex;
     justify-content: flex-end; /* Alinea el botón al final del contenedor */
+}
+#lider2{
+  margin-bottom: 10px;
+  padding: 10px;
 }

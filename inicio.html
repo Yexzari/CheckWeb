@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GS Check</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
     <link rel="stylesheet" href="styles.css"> <!-- Enlace al archivo CSS -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -73,7 +74,15 @@
 
 
         <div class="colaboradores-list" style="display: none;">
-            <input type="text" id="searchColaboradores" placeholder="Buscar">         
+            <div class="filter-container">
+                <input type="text" id="searchReportes" placeholder="Buscar">     
+                <select id="statusFilterReport" class="form-select" aria-label="Default select example">
+                    <option value="todos">Todos</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Reactivo">Reactivo</option>
+                </select>
+            </div>  
+            <button id="Agr">Agregar</button>
             <div class="table-container">
                 <table id="colaboradores-table" class="table">
                     <thead>
@@ -104,19 +113,25 @@
 
         
         <div class="reports-list" style="display: none;">
-            <input type="text" id="searchReportes" placeholder="Buscar">         
+            <div class="filter-container">
+                <input type="text" id="searchReportes" placeholder="Buscar">     
+                <select id="statusFilterReport" class="form-select" aria-label="Default select example">
+                    <option value="todos">Todos</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Reactivo">Reactivo</option>
+                </select>
+            </div>    
             <div class="table-container">
                 <button id="exportButtonHTML" class="btn btn-success">Exportar</button>
                 <table id="reports-table" class="table">
                     <thead>
                         <tr>
-                            <th scope="col">Foto</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">RFC</th>
-                            <th scope="col">CURP</th>
                             <th scope="col">Ingresos</th>
                             <th scope="col">Hora</th>
                             <th scope="col">Proyectos</th>
+                            <th scope="col">Salida a comer</th>
                         </tr>
                     </thead>
                     <tbody id="reports-body"></tbody>
@@ -146,11 +161,21 @@
         </div>
         
         <div id="proyectos-list" class="proyectos-list" style="display: none;">
-
+            <div class="filter-container">
+                <input type="text" id="searchP" placeholder="Buscar">         
+                <select id="statusFilter"class="form-select" aria-label="Default select example">
+                    <option value="todos">Todos</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Reactivo">Reactivo</option>
+                </select>
+            </div>
+            <button id="btnBorrarProyectos">Borrar Todos los Proyectos</button>
+            <button id="btnMostrarFormulario" style="display: none;">Agregar Proyecto</button>
             <table id="proyectos-table" class="proyectos-table">
                 <thead>
                     <tr>
                         <th>Proyecto</th>
+                        <th>Estatus</th>
                         <!-- Puedes agregar más encabezados según sea necesario -->
                     </tr>
                 </thead>
@@ -160,13 +185,15 @@
         <div id="modalOverlay" class="modal-overlay"></div>
         <div id="add-proyect-form" class="modal-form">
             <p class="form-title">Agregar Proyecto</p>
-            <input type="text" id="name" placeholder="Nombre del proyecto">
-            <input type="text" id="lider" placeholder="Lider">
-            <input type="text" id="cliente" placeholder="Cliente">
+            <input type="text" id="name" placeholder="Nombre del proyecto" required>
+            <select id="lider2" class="form-select" aria-label="Default select example" required>
+                <option value="" disabled selected>Seleccione líder</option>
+            </select>
+            <input type="text" id="cliente" placeholder="Cliente" required>
             <button id="btnGuardar2">Guardar</button>
-            <button id="btnCerrar">Cerrar</button>
+            <button id="btnCerrar2">Cerrar</button>
         </div>
-        <button id="btnMostrarFormulario" style="display: none;">Agregar Proyecto</button>
+        
 
         
 <!-- Modal -->
@@ -194,7 +221,14 @@
         
         <div class="lider-list" id="liderList" style="display: none;">
             <!-- Agrega la barra de búsqueda de lideres -->
-            <input type="text" id="searchLider" placeholder="Buscar Lider...">
+            <div class="filter-container">
+                <input type="text" id="searchLiderw" placeholder="Buscar">
+                <select id="statusFilterLider" class="form-select" aria-label="Default select example">
+                    <option value="todos">Todos</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Reactivo">Reactivo</option>
+                </select>
+            </div>    
             <div class="table-container">
                 <table id="lider-table" >
                     <thead>
@@ -209,7 +243,7 @@
         </div>
         <div id="add-user-form" style="display: none;">
             <p class="form-title">Agregar líder</p>
-            <input type="text" id="name" placeholder="Nombre">
+            <input type="text" id="nom" placeholder="Nombre">
             <input type="text" id="lastname" placeholder="Apellido paterno">
             <input type="text" id="motherLastName" placeholder="Apellido materno">
             <input type="text" id="rfc" placeholder="RFC">
@@ -220,7 +254,17 @@
             <button id="btnCerrar">Cerrar</button>
           </div>
           
- 
+          <div id="add-colaborador-form" style="display: none;">
+            <p class="form-title">Agregar Colaborador</p>
+            <input type="text" id="name2" placeholder="Nombre">
+            <input type="text" id="lastname2" placeholder="Apellido paterno">
+            <input type="text" id="motherLastName2" placeholder="Apellido materno">
+            <input type="text" id="rfc2" placeholder="RFC">
+            <input type="text" id="curp" placeholder="CURP">
+            <input type="text" id="phoneNumber2" placeholder="Teléfono">
+            <button id="btnGuardarCol">Guardar</button>
+            <button id="btnCerrarCol">Cerrar</button>
+          </div>
     </main>
 
     <script type="module" src="inicio.js"></script>
