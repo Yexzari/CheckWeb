@@ -6,6 +6,8 @@
   <title>GS Check</title>
   <link rel="stylesheet" href="login.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap"> <!-- Importar la fuente desde Google Fonts -->
+  <script type="module" src="login.js"></script>
+
 </head>
 <body>
   <div class="main-content">
@@ -19,13 +21,15 @@
         <input type="password" id="password" placeholder="Contraseña" required>
         <button type="submit">Iniciar sesión</button>
       </form>
+      <button id="google-sign-in-button">      
+        <img src="imagenes/icon.png" alt="Google Icon" class="google-icon">
+        Continuar con Google</button>
       <div id="user-info" style="display: none;">
         <p id="user-email"></p>
       </div>
     </div>
   </div>
 
-  <script type="module" src="login.js"></script>
 </body>
 </html>
 

@@ -78,11 +78,11 @@ document.getElementById("searchColaborador").addEventListener("input", function 
   const colaboradoresRows = colaboradoresBody.getElementsByTagName("tr");
 
   for (const row of colaboradoresRows) {
-      const nombreCell = row.cells[0].textContent.toLowerCase();
-      const rfcCell = row.cells[1].textContent.toLowerCase();
+    const nombreCell = row.cells[0].textContent.toLowerCase();
+    const rfcCell = row.cells[1].textContent.toLowerCase();
 
-      // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
-      row.style.display = nombreCell.includes(searchTerm) || rfcCell.includes(searchTerm) ? "table-row" : "none";
+    // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
+    row.style.display = nombreCell.includes(searchTerm) || rfcCell.includes(searchTerm) ? "table-row" : "none";
   }
 });
 const btnAgregarColaborador = document.getElementById("Agr");
@@ -105,7 +105,7 @@ btnGuardarCol.addEventListener("click", async () => {
   const phoneNumber = document.getElementById("phoneNumber2").value;
   const curp = document.getElementById("curp").value;
 
-  if (!name || !lastName || !motherLastname || !rfc|| rfc.length !== 13) {
+  if (!name || !lastName || !motherLastname || !rfc || rfc.length !== 13) {
     alert("Por favor, complete los campos obligatorios.");
     return;
   }
@@ -192,26 +192,26 @@ btnColaborador.addEventListener("click", async () => {
       // Resto de tu lógica para mostrar la información del usuario
       const row = document.createElement("tr");
       const qrContainer = document.createElement("td"); // Nuevo td para contener el código QR
-  // Generar código QR
-  const qr = new QRCode(qrContainer, {
-    text: userId,
-    width: 50,
-    height: 50
-  });
+      // Generar código QR
+      const qr = new QRCode(qrContainer, {
+        text: userId,
+        width: 50,
+        height: 50
+      });
 
-  // Agregar evento de clic al código QR
-  qrContainer.addEventListener("click", () => {
-    // Mostrar modal
-    showModal(userId);
-  });
-  
+      // Agregar evento de clic al código QR
+      qrContainer.addEventListener("click", () => {
+        // Mostrar modal
+        showModal(userId);
+      });
+
       row.innerHTML = `
         <td>${name} ${paterno} ${materno}</td>
         <td>${rfc}</td>
         <td>${status}</td>
       `;
       row.appendChild(qrContainer);
-  
+
       colaborBody.appendChild(row);
     });
 
@@ -437,18 +437,18 @@ btnReportes.addEventListener("click", async () => {
     if (existingExportButton) {
       existingExportButton.remove();
     }
-    
+
     // Create and append export button
 
-    
+
     // Enlazar el botón creado dinámicamente con el botón HTML existente
     const exportButtonHTML = document.getElementById("exportButtonHTML");
     exportButtonHTML.addEventListener("click", () => {
       exportToExcel(reportsBody);
     });
-    
+
     reportsListContainer.appendChild(exportButtonHTML);
-    
+
   } catch (error) {
     console.error("Error al cargar la lista de reporte:", error);
   }
@@ -499,11 +499,11 @@ document.getElementById("searchEmpleados").addEventListener("input", function ()
   const colaboradoresRows = colaboradoresBody.getElementsByTagName("tr");
 
   for (const row of colaboradoresRows) {
-      const nombreCell = row.cells[0].textContent.toLowerCase();
-      const rfcCell = row.cells[1].textContent.toLowerCase();
+    const nombreCell = row.cells[0].textContent.toLowerCase();
+    const rfcCell = row.cells[1].textContent.toLowerCase();
 
-      // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
-      row.style.display = nombreCell.includes(searchTerm) || rfcCell.includes(searchTerm) ? "table-row" : "none";
+    // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
+    row.style.display = nombreCell.includes(searchTerm) || rfcCell.includes(searchTerm) ? "table-row" : "none";
   }
 });
 
@@ -676,64 +676,68 @@ btnAgregar.addEventListener("click", () => {
 // ...
 const btnGuardar = document.getElementById("btnGuardar");
 btnGuardar.addEventListener("click", async () => {
-    const name = document.getElementById("nom").value;
-    console.log("Nombre a guardar:", name);
+  const name = document.getElementById("nom").value;
+  console.log("Nombre a guardar:", name);
 
-    const lastName = document.getElementById("lastname").value;
-    console.log("lastName a guardar:", lastName);
+  const lastName = document.getElementById("lastname").value;
+  console.log("lastName a guardar:", lastName);
 
-    const motherLastname = document.getElementById("motherLastName").value;
-    const rfc = document.getElementById("rfc").value;
-    const phoneNumber = document.getElementById("phoneNumber").value;
-    const email = document.getElementById("correo").value;
-    const password = document.getElementById("pass").value;
+  const motherLastname = document.getElementById("motherLastName").value;
+  const rfc = document.getElementById("rfc").value;
+  const phoneNumber = document.getElementById("phoneNumber").value;
+  const email = document.getElementById("correo").value;
+  const password = document.getElementById("pass").value;
 
-    if (!name || !lastName || !email || !password) {
-        alert("Por favor, complete todos los campos obligatorios.");
-        return;
+  if (!name || !lastName || !email || !password) {
+    alert("Por favor, complete todos los campos obligatorios.");
+    return;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert("Por favor, ingrese una dirección de correo electrónico válida.");
+    return;
+  }
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    const db = getFirestore(firebaseApp);
+    const usuariosCollection = collection(db, "lideres");
+
+    await addDoc(usuariosCollection, {
+      uid: user.uid,
+      email: user.email,
+      nombre: name,
+      apellidoPaterno: lastName,
+      apellidoMaterno: motherLastname,
+      rfc: rfc,
+      telefono: phoneNumber,
+      status: "Activo", 
+    });
+
+    console.log("Nuevo usuario registrado y datos agregados con éxito.");
+
+    if (user.emailVerified) {
+      console.log("El correo electrónico ya está verificado.");
+    } else {
+      await sendEmailVerification(user);
+      console.log("Correo de verificación enviado con éxito.");
     }
 
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+    const addUserForm = document.getElementById("add-user-form");
+    addUserForm.style.display = "none";
+    document.getElementById("name").value = "";
+    document.getElementById("lastname").value = "";
+    document.getElementById("motherLastName").value = "";
+    document.getElementById("rfc").value = "";
+    document.getElementById("phoneNumber").value = "";
+    document.getElementById("correo").value = "";
+    document.getElementById("pass").value = "";
 
-        const db = getFirestore(firebaseApp);
-        const usuariosCollection = collection(db, "lideres");
-
-        await addDoc(usuariosCollection, {
-            uid: user.uid,
-            email: user.email,
-            nombre: name,
-            apellidoPaterno: lastName,
-            apellidoMaterno: motherLastname,
-            rfc: rfc,
-            telefono: phoneNumber,
-            status: "Activo", // Agrega el campo "status" con el valor "Activo" o el que desees
-        });
-
-        console.log("Nuevo usuario registrado y datos agregados con éxito.");
-
-        if (user.emailVerified) {
-            console.log("El correo electrónico ya está verificado.");
-        } else {
-            await sendEmailVerification(user);
-            console.log("Correo de verificación enviado con éxito.");
-        }
-
-        const addUserForm = document.getElementById("add-user-form");
-        addUserForm.style.display = "none";
-        document.getElementById("name").value = "";
-        document.getElementById("lastname").value = "";
-        document.getElementById("motherLastName").value = "";
-        document.getElementById("rfc").value = "";
-        document.getElementById("phoneNumber").value = "";
-        document.getElementById("correo").value = "";
-        document.getElementById("pass").value = "";
-
-        await updateTable();
-    } catch (error) {
-        console.error("Error al registrar nuevo usuario:", error);
-    }
+    await updateTable();
+  } catch (error) {
+    console.error("Error al registrar nuevo usuario:", error);
+  }
 });
 
 
@@ -775,14 +779,14 @@ btnCerrar2.addEventListener("click", () => {
 btnMostrarFormulario.addEventListener("click", () => {
   modalOverlay.style.display = "block";
   addProyectForm.style.display = "block";
-  
+
 });
 
 
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    
+
     // Obtener una referencia a la base de datos de Firebase
     const db = getFirestore(firebaseApp);
 
@@ -828,50 +832,50 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const btnGuardar2 = document.getElementById("btnGuardar2");
   btnGuardar2.addEventListener("click", async () => {
-      const nombreProyecto = document.getElementById("name").value;
-      const clienteProyecto = document.getElementById("cliente").value;
-  
-      // Obtener el valor seleccionado en el campo <select> de líder (que debería ser el ID)
-      const liderSelect = document.getElementById("lider2");
-      const idLiderSeleccionado = liderSelect.value;
-    
-      if (nombreProyecto.trim() === "" || liderSelect.value === "" || clienteProyecto.trim() === "") {
-          alert("Por favor, complete todos los campos.");
-          return false;
-      }
-  
-      try {
-          // Obtener una referencia a la base de datos de Firebase
-          const db = getFirestore(firebaseApp);
-    
-          // Guardar los datos del proyecto en la colección "projects"
-          await addDoc(collection(db, "projects"), {
-              nameProject: nombreProyecto,
-              lider: idLiderSeleccionado, // Utilizar el ID del líder seleccionado
-              cliente: clienteProyecto,
-              status: "Activo"
-          });
-  
-          // Después de guardar el proyecto, puedes limpiar el formulario o cerrarlo
-          const addProyectForm = document.getElementById("add-proyect-form");
-          addProyectForm.style.display = "none";
-          modalOverlay.style.display = "none";
+    const nombreProyecto = document.getElementById("name").value;
+    const clienteProyecto = document.getElementById("cliente").value;
 
-          // Limpiar los campos del formulario
-          document.getElementById("name").value = "";
-          document.getElementById("lider2").value = "";
-          document.getElementById("cliente").value = "";
-  
-          // Ocultar el formulario (cerrar el modal)
-  
-          // Actualizar la tabla después de guardar
-          await updateTableProyect();
-      } catch (error) {
-          console.error("Error al guardar el proyecto:", error);
-      }
+    // Obtener el valor seleccionado en el campo <select> de líder (que debería ser el ID)
+    const liderSelect = document.getElementById("lider2");
+    const idLiderSeleccionado = liderSelect.value;
+
+    if (nombreProyecto.trim() === "" || liderSelect.value === "" || clienteProyecto.trim() === "") {
+      alert("Por favor, complete todos los campos.");
+      return false;
+    }
+
+    try {
+      // Obtener una referencia a la base de datos de Firebase
+      const db = getFirestore(firebaseApp);
+
+      // Guardar los datos del proyecto en la colección "projects"
+      await addDoc(collection(db, "projects"), {
+        nameProject: nombreProyecto,
+        lider: idLiderSeleccionado, // Utilizar el ID del líder seleccionado
+        cliente: clienteProyecto,
+        status: "Activo"
+      });
+
+      // Después de guardar el proyecto, puedes limpiar el formulario o cerrarlo
+      const addProyectForm = document.getElementById("add-proyect-form");
+      addProyectForm.style.display = "none";
+      modalOverlay.style.display = "none";
+
+      // Limpiar los campos del formulario
+      document.getElementById("name").value = "";
+      document.getElementById("lider2").value = "";
+      document.getElementById("cliente").value = "";
+
+      // Ocultar el formulario (cerrar el modal)
+
+      // Actualizar la tabla después de guardar
+      await updateTableProyect();
+    } catch (error) {
+      console.error("Error al guardar el proyecto:", error);
+    }
   });
-  
-  
+
+
 });
 
 
@@ -928,81 +932,104 @@ btnBorrar.addEventListener("click", async () => {
 
 
 
-
 document.getElementById("searchP").addEventListener("input", function () {
   const searchTerm = this.value.toLowerCase();
-  const colaboradoresTable = document.getElementById("proyectos-table");
-  const colaboradoresBody = document.getElementById("proyectos-body");
-  const colaboradoresRows = colaboradoresBody.getElementsByTagName("tr");
+  const proyectosCardsContainer = document.getElementById("proyectos-cards");
+  const proyectosCards = proyectosCardsContainer.getElementsByClassName("proyecto-card");
 
-  for (const row of colaboradoresRows) {
-      const nombreCell = row.cells[0].textContent.toLowerCase();
+  for (const card of proyectosCards) {
+      const projectName = card.querySelector("h3").textContent.toLowerCase();
+      const projectStatus = card.querySelector("p").textContent.toLowerCase();
+      const projectClient = card.querySelectorAll("p")[1].textContent.toLowerCase();
+      const projectLider = card.querySelectorAll("p")[2].textContent.toLowerCase();
 
-      // Mostrar u ocultar la fila según si la búsqueda coincide con algún término en las celdas
-      row.style.display = nombreCell.includes(searchTerm) ? "table-row" : "none";
-    }
+      // Mostrar u ocultar la tarjeta según si la búsqueda coincide con algún término en las tarjetas
+      const showCard = projectName.includes(searchTerm) || projectStatus.includes(searchTerm) || projectClient.includes(searchTerm) || projectLider.includes(searchTerm);
+      card.style.display = showCard ? "block" : "none";
+  }
 });
+
 
 btnProyectos.addEventListener("click", async () => {
   console.log("Clic en Proyectos");
   textoPrincipal.textContent = "Proyectos";
 
   try {
-      const db = getFirestore(firebaseApp);
-      const projectsCollection = collection(db, "projects");
-      const projectsSnapshot = await getDocs(projectsCollection);
+    const db = getFirestore(firebaseApp);
+    const projectsCollection = collection(db, "projects");
+    const projectsSnapshot = await getDocs(projectsCollection);
 
-      const proyectosListContainer = document.getElementById("proyectos-list");
-      const proyectosTableBody = document.getElementById("proyectos-body");
-      const statusFilter = document.getElementById("statusFilter").value;
+    const proyectosCardsContainer = document.getElementById("proyectos-cards");
+    const statusFilter = document.getElementById("statusFilter").value;
 
-      // Limpiar el cuerpo de la tabla antes de rellenarlo nuevamente
-      proyectosTableBody.innerHTML = "";
+    // Limpiar el contenedor de tarjetas antes de rellenarlo nuevamente
+    proyectosCardsContainer.innerHTML = "";
 
-      projectsSnapshot.forEach(async (projectDoc) => {
-          const projectData = projectDoc.data();
-          if (statusFilter === "todos" || projectData.status === statusFilter) {
+    projectsSnapshot.forEach(async (projectDoc) => {
+      const projectData = projectDoc.data();
+      if (statusFilter === "todos" || projectData.status === statusFilter) {
+        // Crear una tarjeta de proyecto
+        const proyectoCard = document.createElement("div");
+        proyectoCard.classList.add("proyecto-card");
 
-          // Crear una fila de la tabla
-          const row = document.createElement("tr");
+        // Añadir contenido a la tarjeta
+        const projectName = document.createElement("h3");
+        projectName.textContent = projectData.nameProject;
 
-          // Crear una celda para el nombre del proyecto
-          const projectNameCell = document.createElement("td");
+        const projectStatus = document.createElement("p");
+        projectStatus.textContent = "Estatus: " + projectData.status || "Sin especificar";
 
-          // Crear un div en lugar de un enlace
-          const projectDiv = document.createElement("div");
-          projectDiv.textContent = projectData.nameProject;
-          projectDiv.style.cursor = "pointer"; // Añadir un estilo de cursor para indicar que es interactivo
+        const projectClient = document.createElement("p");
+        projectClient.textContent = "Cliente: " + projectData.cliente;
+        const projectLider = document.createElement("p");
+        try {
+          const liderDoc = await getDoc(doc(db, 'lideres', projectData.lider));
+          if (liderDoc.exists()) {
+            const liderData = liderDoc.data();
+            // Mostrar nombre y apellido del líder en la tarjeta
+            projectLider.textContent = `Lider: ${liderData.nombre} ${liderData.apellidoPaterno} ${liderData.apellidoMaterno}`;
+          } else {
+            projectLider.textContent = "Líder no encontrado";
+          }
+        } catch (error) {
+          console.error("Error al obtener información del líder:", error);
+        }
+        // Agregar la tarjeta al contenedor de tarjetas
+        proyectoCard.appendChild(projectName);
+        proyectoCard.appendChild(projectStatus);
+        proyectoCard.appendChild(projectClient);
+        proyectoCard.appendChild(projectLider);
 
-          // Añadir un evento de clic al div
-          projectDiv.addEventListener("click", async () => {
-              try {
-                  // Construir una consulta para buscar todas las entradas relacionadas con este proyecto
-                  const entriesCollection = collection(db, "entries");
-                  const entriesQuery = query(entriesCollection, where("projectId", "==", projectDoc.id));
-                  const entriesSnapshot = await getDocs(entriesQuery);
 
-                  // Limpiar el contenido de la tabla dentro del modal
-                  document.getElementById("userInfoBody").innerHTML = "";
+        // Añadir un evento de clic al div
+        proyectoCard.addEventListener("click", async () => {
+          try {
+            // Construir una consulta para buscar todas las entradas relacionadas con este proyecto
+            const entriesCollection = collection(db, "entries");
+            const entriesQuery = query(entriesCollection, where("projectId", "==", projectDoc.id));
+            const entriesSnapshot = await getDocs(entriesQuery);
 
-                  // Mostrar información de los usuarios asignados al proyecto en una tabla dentro del modal
-                  entriesSnapshot.forEach(async (entryDoc) => {
-                      const entryData = entryDoc.data();
-                      const userId = entryData.userId;
-                      const entryDateTime = entryData.entryTime.toDate();
-                      const entryDate = entryDateTime.toLocaleDateString();
-                      const entryTime = entryDateTime.toLocaleTimeString();
+            // Limpiar el contenido de la tabla dentro del modal
+            document.getElementById("userInfoBody").innerHTML = "";
 
-                      // Buscar información del usuario en la colección de usuarios
-                      const userRef = doc(db, "users", userId);
-                      const userDoc = await getDoc(userRef);
+            // Mostrar información de los usuarios asignados al proyecto en una tabla dentro del modal
+            entriesSnapshot.forEach(async (entryDoc) => {
+              const entryData = entryDoc.data();
+              const userId = entryData.userId;
+              const entryDateTime = entryData.entryTime.toDate();
+              const entryDate = entryDateTime.toLocaleDateString();
+              const entryTime = entryDateTime.toLocaleTimeString();
 
-                      if (userDoc.exists()) {
-                          const userData = userDoc.data();
+              // Buscar información del usuario en la colección de usuarios
+              const userRef = doc(db, "users", userId);
+              const userDoc = await getDoc(userRef);
 
-                          // Crear una fila de la tabla con los datos del usuario
-                          var row = document.createElement("tr");
-                          row.innerHTML = `
+              if (userDoc.exists()) {
+                const userData = userDoc.data();
+
+                // Crear una fila de la tabla con los datos del usuario
+                var row = document.createElement("tr");
+                row.innerHTML = `
                               <td><img src="${userData.photo}" alt="Foto de perfil" style="width: 50px; height: 50px;"></td>
                               <td>${userData.name} ${userData.lastName} ${userData.motherLastName}</td>
                               <td>${userData.rfc}</td>
@@ -1012,46 +1039,35 @@ btnProyectos.addEventListener("click", async () => {
                               <!-- Agrega más celdas según sea necesario -->
                           `;
 
-                          // Agregar la fila a la tabla dentro del modal
-                          document.getElementById("userInfoBody").appendChild(row);
-                      } else {
-                          console.log("Usuario no encontrado");
-                      }
-                  });
-
-                  // Mostrar el modal
-                  modal.style.display = "block";
-              } catch (error) {
-                  console.error("Error al buscar usuarios asignados al proyecto:", error);
+                // Agregar la fila a la tabla dentro del modal
+                document.getElementById("userInfoBody").appendChild(row);
+              } else {
+                console.log("Usuario no encontrado");
               }
-          });
+            });
 
-          // Agregar el div a la celda
-          projectNameCell.appendChild(projectDiv);
+            // Mostrar el modal
+            modal.style.display = "block";
+          } catch (error) {
+            console.error("Error al buscar usuarios asignados al proyecto:", error);
+          }
+        });
+        proyectosCardsContainer.appendChild(proyectoCard);
 
-          // Agregar la celda a la fila
-          row.appendChild(projectNameCell);
+      }
+    });
 
-          const statusCell = document.createElement("td");
-          statusCell.textContent = projectData.status || "Sin especificar";
-          row.appendChild(statusCell);
-
-          // Agregar la fila al cuerpo de la tabla
-          proyectosTableBody.appendChild(row);
-        }
-      });
-
-      // Resto del código para cambiar la visibilidad de otros contenedores
-      reportsListContainer.style.display = "none";
-      employeesListContainer.style.display = "none";
-      proyectosListContainer.style.display = "block";
-      permisosListContainer.style.display = "none";
-      btnAgregar.style.display = "none";
-      btnMostrarFormulario.style.display = "block";
-      colaboradorListContainer.style.display = "none";
+    // Resto del código para cambiar la visibilidad de otros contenedores
+    reportsListContainer.style.display = "none";
+    employeesListContainer.style.display = "none";
+    proyectosListContainer.style.display = "block";
+    permisosListContainer.style.display = "none";
+    btnAgregar.style.display = "none";
+    btnMostrarFormulario.style.display = "block";
+    colaboradorListContainer.style.display = "none";
 
   } catch (error) {
-      console.error("Error al cargar los proyectos:", error);
+    console.error("Error al cargar los proyectos:", error);
   }
 });
 
@@ -1104,28 +1120,89 @@ async function updateTable() {
 }
 
 
+
 async function updateTableProyect() {
   try {
     const db = getFirestore(firebaseApp);
     const projectsCollection = collection(db, "projects");
     const projectSnapshot = await getDocs(projectsCollection);
-    const proyectosBody = document.getElementById("proyectos-body");
+    const proyectosCardsContainer = document.getElementById("proyectos-cards");
 
-    proyectosBody.innerHTML = "";
+    // Limpiar el contenedor de tarjetas antes de rellenarlo nuevamente
+    proyectosCardsContainer.innerHTML = "";
 
     projectSnapshot.forEach((projectDoc) => {
       const projectData = projectDoc.data();
-      const row = document.createElement("tr");
-      row.innerHTML = `
-              <td>${projectData.nameProject}</td>
-              <td>${projectData.status}</td>
+      const proyectoCard = document.createElement("div");
+      proyectoCard.classList.add("proyecto-card");
 
-              `;
-              proyectosBody.appendChild(row);
+      const projectName = document.createElement("h3");
+      projectName.textContent = projectData.nameProject;
+
+      const projectStatus = document.createElement("p");
+      projectStatus.textContent = "Estatus: " + projectData.status || "Sin especificar";
+      const projectClient = document.createElement("p");
+      projectClient.textContent = "Cliente: " + projectData.cliente;
+      const projectLider = document.createElement("p");
+      // Añadir la tarjeta al contenedor de tarjetas
+      proyectoCard.appendChild(projectName);
+      proyectoCard.appendChild(projectStatus);
+
+      proyectoCard.addEventListener("click", async () => {
+        try {
+          // Construir una consulta para buscar todas las entradas relacionadas con este proyecto
+          const entriesCollection = collection(db, "entries");
+          const entriesQuery = query(entriesCollection, where("projectId", "==", projectDoc.id));
+          const entriesSnapshot = await getDocs(entriesQuery);
+
+          // Limpiar el contenido de la tabla dentro del modal
+          document.getElementById("userInfoBody").innerHTML = "";
+
+          // Mostrar información de los usuarios asignados al proyecto en una tabla dentro del modal
+          entriesSnapshot.forEach(async (entryDoc) => {
+            const entryData = entryDoc.data();
+            const userId = entryData.userId;
+            const entryDateTime = entryData.entryTime.toDate();
+            const entryDate = entryDateTime.toLocaleDateString();
+            const entryTime = entryDateTime.toLocaleTimeString();
+
+            // Buscar información del usuario en la colección de usuarios
+            const userRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+
+              // Crear una fila de la tabla con los datos del usuario
+              var row = document.createElement("tr");
+              row.innerHTML = `
+                            <td><img src="${userData.photo}" alt="Foto de perfil" style="width: 50px; height: 50px;"></td>
+                            <td>${userData.name} ${userData.lastName} ${userData.motherLastName}</td>
+                            <td>${userData.rfc}</td>
+                            <td>${userData.phoneNumber}</td>
+                            <td>${entryDate}</td>
+                            <td>${entryTime}</td>
+                            <!-- Agrega más celdas según sea necesario -->
+                        `;
+
+              // Agregar la fila a la tabla dentro del modal
+              document.getElementById("userInfoBody").appendChild(row);
+            } else {
+              console.log("Usuario no encontrado");
+            }
+          });
+
+          // Mostrar el modal
+          modal.style.display = "block";
+        } catch (error) {
+          console.error("Error al buscar usuarios asignados al proyecto:", error);
+        }
+      });
+      proyectosCardsContainer.appendChild(proyectoCard);
     });
 
-    console.log("Tabla actualizada con éxito.");
+    console.log("Tarjetas de proyectos actualizadas con éxito.");
   } catch (error) {
-    console.error("Error al actualizar la tabla:", error);
+    console.error("Error al actualizar las tarjetas de proyectos:", error);
   }
 }

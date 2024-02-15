@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js";
 
 
@@ -35,5 +35,23 @@ loginForm.addEventListener("submit", async (e) => {
     window.location.href = "inicio.html";
   } catch (error) {
     console.error("Error al iniciar sesión:", error);
+  }
+});
+
+// Handle Google Sign-In
+const googleSignInButton = document.getElementById("google-sign-in-button");
+
+googleSignInButton.addEventListener("click", async () => {
+  const provider = new GoogleAuthProvider();
+
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    console.log("Inicio de sesión con Google exitoso");
+    console.log("Usuario:", user);
+    window.location.href = "inicio.html";
+  } catch (error) {
+    console.error("Error al iniciar sesión con Google:", error);
   }
 });
